@@ -1,0 +1,248 @@
+if not game:IsLoaded() then
+    game.Loaded:Wait()
+end
+
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Workspace = game:GetService("Workspace")
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+
+local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+
+local gui = Instance.new("ScreenGui")
+gui.Name = "Hidden Force UI"
+gui.ResetOnSpawn = false
+gui.Parent = playerGui
+
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 300, 0, 400)
+frame.Position = UDim2.new(0.5, -150, 0.5, -200)
+frame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+frame.BorderSizePixel = 0
+frame.Parent = gui
+
+local uiCorner = Instance.new("UICorner")
+uiCorner.CornerRadius = UDim.new(0, 10)
+uiCorner.Parent = frame
+
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, 0, 0.15, 0)
+title.Position = UDim2.new(0, 0, 0, 0)
+title.Text = "Aholo GUI"
+title.TextColor3 = Color3.fromRGB(100, 255, 100)
+title.TextScaled = true
+title.BackgroundTransparency = 1
+title.Parent = frame
+
+local creditLabel = Instance.new("TextLabel")
+creditLabel.Size = UDim2.new(1, 0, 0.1, 0)
+creditLabel.Position = UDim2.new(0, 0, 0.9, 0)
+creditLabel.Text = "Credit: Akuline09"
+creditLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+creditLabel.TextScaled = true
+creditLabel.BackgroundTransparency = 1
+creditLabel.Parent = frame
+
+local sliderLabel = Instance.new("TextLabel")
+sliderLabel.Size = UDim2.new(0.9, 0, 0.1, 0)
+sliderLabel.Position = UDim2.new(0.05, 0, 0.3, 0)
+sliderLabel.Text = "Head Size: 5"
+sliderLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+sliderLabel.TextScaled = true
+sliderLabel.BackgroundTransparency = 1
+sliderLabel.Parent = frame
+
+local slider = Instance.new("Frame")
+slider.Size = UDim2.new(0.9, 0, 0.02, 0)
+slider.Position = UDim2.new(0.05, 0, 0.4, 0)
+slider.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+slider.Parent = frame
+
+local sliderButton = Instance.new("TextButton")
+sliderButton.Size = UDim2.new(0.1, 0, 1, 0)
+sliderButton.Position = UDim2.new(0.45, 0, 0, 0)
+sliderButton.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+sliderButton.Text = ""
+sliderButton.Parent = slider
+
+local espToggle = Instance.new("TextButton")
+espToggle.Size = UDim2.new(0.9, 0, 0.1, 0)
+espToggle.Position = UDim2.new(0.05, 0, 0.5, 0)
+espToggle.Text = "Toggle ESP: Off"
+espToggle.TextColor3 = Color3.fromRGB(255, 255, 255)
+espToggle.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+espToggle.Parent = frame
+
+local runIYButton = Instance.new("TextButton")
+runIYButton.Size = UDim2.new(0.9, 0, 0.1, 0)
+runIYButton.Position = UDim2.new(0.05, 0, 0.7, 0)
+runIYButton.Text = "Run IY"
+runIYButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+runIYButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+runIYButton.Parent = frame
+
+runIYButton.MouseButton1Click:Connect(function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/EdgeIY/infiniteyield/refs/heads/master/source"))()
+end)
+
+local dragging = false
+local dragStart, startPos
+
+title.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = true
+        dragStart = input.Position
+        startPos = frame.Position
+    end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+    if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+        local delta = input.Position - dragStart
+        frame.Position = UDim2.new(
+            startPos.X.Scale,
+            startPos.X.Offset + delta.X,
+            startPos.Y.Scale,
+            startPos.Y.Offset + delta.Y
+        )
+    end
+end)
+
+title.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = false
+    end
+end)
+
+local headSize = 5
+local espEnabled = false
+local noobsFolder = ReplicatedStorage:FindFirstChild("Units") and ReplicatedStorage.Units:FindFirstChild("Noobs")
+local enemyNames = {}
+if noobsFolder then
+    for _, enemy in ipairs(noobsFolder:GetChildren()) do
+        table.insert(enemyNames, tostring(enemy.Name))
+    end
+end
+
+local function addHealthBar(billboard, humanoid)
+    local healthBarBackground = Instance.new("Frame")
+    healthBarBackground.Size = UDim2.new(1, 0, 0.2, 0)
+    healthBarBackground.Position = UDim2.new(0, 0, 0.6, 0)
+    healthBarBackground.BackgroundColor3 = Color3.new(0, 0, 0)
+    healthBarBackground.BorderSizePixel = 0
+    healthBarBackground.Parent = billboard
+
+    local healthBar = Instance.new("Frame")
+    healthBar.Size = UDim2.new(1, 0, 1, 0)
+    healthBar.BackgroundColor3 = Color3.new(0, 1, 0)
+    healthBar.BorderSizePixel = 0
+    healthBar.Parent = healthBarBackground
+
+    humanoid:GetPropertyChangedSignal("Health"):Connect(function()
+        healthBar.Size = UDim2.new(humanoid.Health / humanoid.MaxHealth, 0, 1, 0)
+    end)
+end
+
+local function addESP(instance)
+    if not instance:FindFirstChild("Head") then return end
+    local head = instance.Head
+    if not head:FindFirstChild("ESPHighlight") then
+        local highlight = Instance.new("Highlight")
+        highlight.Name = "ESPHighlight"
+        highlight.FillColor = Color3.fromRGB(255, 0, 0)
+        highlight.FillTransparency = 0.5
+        highlight.OutlineTransparency = 0
+        highlight.Parent = head
+    end
+    if not head:FindFirstChild("ESPBillboard") then
+        local billboard = Instance.new("BillboardGui")
+        billboard.Name = "ESPBillboard"
+        billboard.Adornee = head
+        billboard.Size = UDim2.new(5, 0, 2, 0)
+        billboard.StudsOffset = Vector3.new(0, 3, 0)
+        billboard.AlwaysOnTop = true
+        billboard.Parent = head
+
+        local nameLabel = Instance.new("TextLabel")
+        nameLabel.Text = instance.Name
+        nameLabel.Size = UDim2.new(1, 0, 0.5, 0)
+        nameLabel.Position = UDim2.new(0, 0, 0, 0)
+        nameLabel.BackgroundTransparency = 1
+        nameLabel.TextColor3 = Color3.new(1, 1, 1)
+        nameLabel.TextScaled = true
+        nameLabel.Parent = billboard
+
+        local humanoid = instance:FindFirstChildOfClass("Humanoid")
+        if humanoid then
+            addHealthBar(billboard, humanoid)
+        end
+    end
+end
+
+local function removeESP(instance)
+    if not instance:FindFirstChild("Head") then return end
+    local head = instance.Head
+    if head:FindFirstChild("ESPHighlight") then
+        head.ESPHighlight:Destroy()
+    end
+    if head:FindFirstChild("ESPBillboard") then
+        head.ESPBillboard:Destroy()
+    end
+end
+
+local function applyToInstance(instance)
+    if table.find(enemyNames, instance.Name) then
+        instance.Head.Size = Vector3.new(headSize, headSize, headSize)
+        instance.Head.Transparency = 0.6
+        instance.Head.CanCollide = false
+        instance.Head.Massless = true
+        instance:SetPrimaryPartCFrame(instance:GetPrimaryPartCFrame() + Vector3.new(0, headSize / 2, 0))
+        if espEnabled then
+            addESP(instance)
+        else
+            removeESP(instance)
+        end
+    end
+end
+
+sliderButton.MouseButton1Down:Connect(function()
+    local moveConn, releaseConn
+    moveConn = UserInputService.InputChanged:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseMovement then
+            local x = math.clamp((input.Position.X - slider.AbsolutePosition.X) / slider.AbsoluteSize.X, 0, 1)
+            sliderButton.Position = UDim2.new(x, 0, 0, 0)
+            headSize = math.floor((x * 30) + 1)
+            sliderLabel.Text = "Head Size: " .. headSize
+        end
+    end)
+    releaseConn = UserInputService.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            moveConn:Disconnect()
+            releaseConn:Disconnect()
+        end
+    end)
+end)
+
+espToggle.MouseButton1Click:Connect(function()
+    espEnabled = not espEnabled
+    espToggle.Text = "Toggle ESP: " .. (espEnabled and "On" or "Off")
+    for _, v in ipairs(Workspace:GetChildren()) do
+        applyToInstance(v)
+    end
+end)
+
+Workspace.ChildAdded:Connect(function(v)
+    task.wait()
+    applyToInstance(v)
+end)
+
+UserInputService.InputBegan:Connect(function(input, isProcessed)
+    if not isProcessed and input.KeyCode == Enum.KeyCode.RightControl then
+        frame.Visible = not frame.Visible
+    end
+end)
+
+for _, v in ipairs(Workspace:GetChildren()) do
+    applyToInstance(v)
+end
