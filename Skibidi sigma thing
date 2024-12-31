@@ -90,7 +90,7 @@ local dragging = false
 local dragStart, startPos
 
 title.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
         dragging = true
         dragStart = input.Position
         startPos = frame.Position
@@ -98,7 +98,7 @@ title.InputBegan:Connect(function(input)
 end)
 
 UserInputService.InputChanged:Connect(function(input)
-    if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+    if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
         local delta = input.Position - dragStart
         frame.Position = UDim2.new(
             startPos.X.Scale,
@@ -110,18 +110,20 @@ UserInputService.InputChanged:Connect(function(input)
 end)
 
 title.InputEnded:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
         dragging = false
     end
 end)
 
 local headSize = 5
 local espEnabled = false
+local excludedUnits = { "APU", "APU_Operator" }
 local noobsFolder = ReplicatedStorage:FindFirstChild("Units") and ReplicatedStorage.Units:FindFirstChild("Noobs")
 local enemyNames = {}
+
 if noobsFolder then
     for _, enemy in ipairs(noobsFolder:GetChildren()) do
-        table.insert(enemyNames, tostring(enemy.Name))
+        table.insert(enemyNames, enemy.Name)
     end
 end
 
@@ -192,7 +194,11 @@ local function removeESP(instance)
 end
 
 local function applyToInstance(instance)
-    if table.find(enemyNames, instance.Name) then
+    if table.find(excludedUnits, instance.Name) then
+        if espEnabled then
+            addESP(instance)
+        end
+    elseif table.find(enemyNames, instance.Name) then
         instance.Head.Size = Vector3.new(headSize, headSize, headSize)
         instance.Head.Transparency = 0.6
         instance.Head.CanCollide = false
