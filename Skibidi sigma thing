@@ -11,42 +11,49 @@ local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
 
 local gui = Instance.new("ScreenGui")
-gui.Name = "Hidden Force UI"
+gui.Name = "Hidden Force"
 gui.ResetOnSpawn = false
 gui.Parent = playerGui
 
 local frame = Instance.new("Frame")
-frame.Size = UDim2.new(0, 300, 0, 400)
-frame.Position = UDim2.new(0.5, -150, 0.5, -200)
-frame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+frame.Size = UDim2.new(0, 350, 0, 650)
+frame.Position = UDim2.new(0.5, -175, 0.5, -325)
+frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
 frame.BorderSizePixel = 0
 frame.Parent = gui
 
 local uiCorner = Instance.new("UICorner")
-uiCorner.CornerRadius = UDim.new(0, 10)
+uiCorner.CornerRadius = UDim.new(0, 15)
 uiCorner.Parent = frame
 
 local title = Instance.new("TextLabel")
-title.Size = UDim2.new(1, 0, 0.15, 0)
+title.Size = UDim2.new(1, 0, 0.12, 0)
 title.Position = UDim2.new(0, 0, 0, 0)
-title.Text = "Aholo GUI"
-title.TextColor3 = Color3.fromRGB(100, 255, 100)
+title.Text = "Aholo Gui"
+title.TextColor3 = Color3.fromRGB(255, 170, 0)
 title.TextScaled = true
 title.BackgroundTransparency = 1
 title.Parent = frame
 
-local creditLabel = Instance.new("TextLabel")
-creditLabel.Size = UDim2.new(1, 0, 0.1, 0)
-creditLabel.Position = UDim2.new(0, 0, 0.9, 0)
-creditLabel.Text = "Credit: Akuline09"
-creditLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-creditLabel.TextScaled = true
-creditLabel.BackgroundTransparency = 1
-creditLabel.Parent = frame
+local closeButton = Instance.new("TextButton")
+closeButton.Size = UDim2.new(0.15, 0, 0.1, 0)
+closeButton.Position = UDim2.new(0.85, 0, 0, 0)
+closeButton.Text = "X"
+closeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+closeButton.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
+closeButton.Parent = frame
+
+local uiCornerClose = Instance.new("UICorner")
+uiCornerClose.CornerRadius = UDim.new(0, 5)
+uiCornerClose.Parent = closeButton
+
+closeButton.MouseButton1Click:Connect(function()
+    gui:Destroy()
+end)
 
 local sliderLabel = Instance.new("TextLabel")
 sliderLabel.Size = UDim2.new(0.9, 0, 0.1, 0)
-sliderLabel.Position = UDim2.new(0.05, 0, 0.3, 0)
+sliderLabel.Position = UDim2.new(0.05, 0, 0.2, 0)
 sliderLabel.Text = "Head Size: 5"
 sliderLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 sliderLabel.TextScaled = true
@@ -54,43 +61,63 @@ sliderLabel.BackgroundTransparency = 1
 sliderLabel.Parent = frame
 
 local slider = Instance.new("Frame")
-slider.Size = UDim2.new(0.9, 0, 0.02, 0)
-slider.Position = UDim2.new(0.05, 0, 0.4, 0)
-slider.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+slider.Size = UDim2.new(0.9, 0, 0.03, 0)
+slider.Position = UDim2.new(0.05, 0, 0.3, 0)
+slider.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
 slider.Parent = frame
 
 local sliderButton = Instance.new("TextButton")
 sliderButton.Size = UDim2.new(0.1, 0, 1, 0)
 sliderButton.Position = UDim2.new(0.45, 0, 0, 0)
-sliderButton.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+sliderButton.BackgroundColor3 = Color3.fromRGB(255, 100, 0)
 sliderButton.Text = ""
 sliderButton.Parent = slider
 
 local espToggle = Instance.new("TextButton")
 espToggle.Size = UDim2.new(0.9, 0, 0.1, 0)
-espToggle.Position = UDim2.new(0.05, 0, 0.5, 0)
+espToggle.Position = UDim2.new(0.05, 0, 0.4, 0)
 espToggle.Text = "Toggle ESP: Off"
 espToggle.TextColor3 = Color3.fromRGB(255, 255, 255)
-espToggle.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+espToggle.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 espToggle.Parent = frame
+
+local infAmmoToggle = Instance.new("TextButton")
+infAmmoToggle.Size = UDim2.new(0.9, 0, 0.1, 0)
+infAmmoToggle.Position = UDim2.new(0.05, 0, 0.5, 0)
+infAmmoToggle.Text = "Inf Ammo: Off"
+infAmmoToggle.TextColor3 = Color3.fromRGB(255, 255, 255)
+infAmmoToggle.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+infAmmoToggle.Parent = frame
 
 local runIYButton = Instance.new("TextButton")
 runIYButton.Size = UDim2.new(0.9, 0, 0.1, 0)
-runIYButton.Position = UDim2.new(0.05, 0, 0.7, 0)
-runIYButton.Text = "Run IY"
+runIYButton.Position = UDim2.new(0.05, 0, 0.6, 0)
+runIYButton.Text = "Run Infinite Yield"
 runIYButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-runIYButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+runIYButton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 runIYButton.Parent = frame
 
-runIYButton.MouseButton1Click:Connect(function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/EdgeIY/infiniteyield/refs/heads/master/source"))()
-end)
+local noSpreadToggle = Instance.new("TextButton")
+noSpreadToggle.Size = UDim2.new(0.9, 0, 0.1, 0)
+noSpreadToggle.Position = UDim2.new(0.05, 0, 0.7, 0)
+noSpreadToggle.Text = "No Spread: Off"
+noSpreadToggle.TextColor3 = Color3.fromRGB(255, 255, 255)
+noSpreadToggle.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+noSpreadToggle.Parent = frame
+
+local fireRateToggle = Instance.new("TextButton")
+fireRateToggle.Size = UDim2.new(0.9, 0, 0.1, 0)
+fireRateToggle.Position = UDim2.new(0.05, 0, 0.8, 0)
+fireRateToggle.Text = "Inf Fire Rate: Off"
+fireRateToggle.TextColor3 = Color3.fromRGB(255, 255, 255)
+fireRateToggle.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+fireRateToggle.Parent = frame
 
 local dragging = false
 local dragStart, startPos
 
 title.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
         dragging = true
         dragStart = input.Position
         startPos = frame.Position
@@ -98,7 +125,7 @@ title.InputBegan:Connect(function(input)
 end)
 
 UserInputService.InputChanged:Connect(function(input)
-    if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+    if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
         local delta = input.Position - dragStart
         frame.Position = UDim2.new(
             startPos.X.Scale,
@@ -110,13 +137,16 @@ UserInputService.InputChanged:Connect(function(input)
 end)
 
 title.InputEnded:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
         dragging = false
     end
 end)
 
 local headSize = 5
 local espEnabled = false
+local infAmmoEnabled = false
+local autoZeroSpread = false
+local autoMaxFireRate = false
 local excludedUnits = { "APU", "APU_Operator" }
 local noobsFolder = ReplicatedStorage:FindFirstChild("Units") and ReplicatedStorage.Units:FindFirstChild("Noobs")
 local enemyNames = {}
@@ -241,6 +271,67 @@ end)
 Workspace.ChildAdded:Connect(function(v)
     task.wait()
     applyToInstance(v)
+end)
+
+task.spawn(function()
+    while task.wait(1) do
+        if infAmmoEnabled then
+            for _, itm in pairs(player.Character:GetChildren()) do
+                if itm:IsA("Tool") then
+                    pcall(function()
+                        itm:GetAttributeChangedSignal("Ammo"):Connect(function()
+                            itm:SetAttribute("Ammo", math.huge)
+                        end)
+                        itm:SetAttribute("Ammo", math.huge)
+                    end)
+                end
+            end
+        end
+    end
+end)
+
+infAmmoToggle.MouseButton1Click:Connect(function()
+    infAmmoEnabled = not infAmmoEnabled
+    infAmmoToggle.Text = "Inf Ammo: " .. (infAmmoEnabled and "On" or "Off")
+end)
+
+runIYButton.MouseButton1Click:Connect(function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/EdgeIY/infiniteyield/refs/heads/master/source"))()
+end)
+
+noSpreadToggle.MouseButton1Click:Connect(function()
+    autoZeroSpread = not autoZeroSpread
+    noSpreadToggle.Text = "No Spread: " .. (autoZeroSpread and "On" or "Off")
+    task.spawn(function()
+        while autoZeroSpread do
+            for _, itm in pairs(player.Character:GetChildren()) do
+                if itm:IsA("Tool") then
+                    pcall(function()
+                        itm:SetAttribute("Spread", 0)
+                    end)
+                end
+            end
+            task.wait(1)
+        end
+    end)
+end)
+
+fireRateToggle.MouseButton1Click:Connect(function()
+    autoMaxFireRate = not autoMaxFireRate
+    fireRateToggle.Text = "Inf Fire Rate: " .. (autoMaxFireRate and "On" or "Off")
+    task.spawn(function()
+        while autoMaxFireRate do
+            for _, itm in pairs(player.Character:GetChildren()) do
+                if itm:IsA("Tool") then
+                    pcall(function()
+                        itm:SetAttribute("Firerate", 9999)
+                        itm:SetAttribute("BulletSpeed", 9999)
+                    end)
+                end
+            end
+            task.wait(1)
+        end
+    end)
 end)
 
 UserInputService.InputBegan:Connect(function(input, isProcessed)
