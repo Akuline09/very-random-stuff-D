@@ -1,0 +1,161 @@
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local StarterGui = game:GetService("StarterGui")
+
+local lp = Players.LocalPlayer
+local espEnabled = true
+local connections = {}
+
+local function clapto_()
+    for _ = 1, 3 do
+        StarterGui:SetCore("SendNotification", {
+            Title = "Tip!",
+            Text = "Made by Aholo",
+            Duration = 2
+        })
+        task.wait(2)
+    end
+end
+
+clapto_()
+
+local function GetTeamColor(plr)
+    return plr.Team and plr.Team.TeamColor.Color or Color3.fromRGB(175, 25, 255)
+end
+
+local function SetHeadSize(plr, size)
+    if plr.Character and plr.Character:FindFirstChild("Head") then
+        local head = plr.Character.Head
+        head.Size = Vector3.new(size, size, size)
+        head.CanCollide = false
+        head.Massless = true
+    end
+end
+
+local function CreateESP(plr)
+    if plr == lp or connections[plr] then return end
+
+    local b = Instance.new("BillboardGui")
+    b.Name = "ESP_" .. plr.Name
+    b.Size = UDim2.new(0, 200, 0, 50)
+    b.StudsOffset = Vector3.new(0, 3, 0)
+    b.AlwaysOnTop = true
+
+    local n = Instance.new("TextLabel")
+    n.Name = "NameLabel"
+    n.Size = UDim2.new(1, 0, 1, 0)
+    n.BackgroundTransparency = 1
+    n.TextColor3 = Color3.new(1, 1, 1)
+    n.Font = Enum.Font.SourceSansBold
+    n.TextScaled = true
+    n.Text = ""
+    n.Parent = b
+
+    local hi = Instance.new("Highlight")
+    hi.Name = "Highlight_" .. plr.Name
+    hi.FillTransparency = 0.5
+    hi.OutlineTransparency = 0
+    hi.Adornee = nil
+
+    local function Update()
+        if espEnabled and plr.Character and plr.Character:FindFirstChild("Humanoid") and plr.Character:FindFirstChild("HumanoidRootPart") then
+            local hrp = plr.Character.HumanoidRootPart
+            local humanoid = plr.Character.Humanoid
+            b.Adornee = hrp
+            hi.Adornee = plr.Character
+            hi.FillColor = GetTeamColor(plr)
+            b.Enabled = true
+            n.Text = string.format("%s | %s | HP: %d", plr.Name, plr.Team and plr.Team.Name or "No Team", math.floor(humanoid.Health))
+            SetHeadSize(plr, 2)
+            hi.Parent = hrp
+        else
+            b.Adornee = nil
+            hi.Adornee = nil
+            b.Enabled = false
+            SetHeadSize(plr, 1)
+            hi.Parent = nil
+        end
+    end
+
+    local function OnCharacterAdded()
+        Update()
+        if not connections[plr] then
+            connections[plr] = RunService.RenderStepped:Connect(Update)
+        end
+    end
+
+    local function OnCharacterRemoving()
+        b.Adornee = nil
+        hi.Adornee = nil
+        b.Enabled = false
+        hi.Parent = nil
+    end
+
+    plr.CharacterAdded:Connect(OnCharacterAdded)
+    plr.CharacterRemoving:Connect(OnCharacterRemoving)
+
+    b.Parent = lp:FindFirstChildOfClass("PlayerGui")
+    hi.Parent = nil
+    OnCharacterAdded()
+end
+
+local function RemoveESP(plr)
+    if connections[plr] then
+        connections[plr]:Disconnect()
+        connections[plr] = nil
+    end
+    local g = lp:FindFirstChildOfClass("PlayerGui")
+    if g then
+        local esp = g:FindFirstChild("ESP_" .. plr.Name)
+        if esp then esp:Destroy() end
+    end
+    local h = workspace:FindFirstChild("Highlight_" .. plr.Name)
+    if h then h:Destroy() end
+    SetHeadSize(plr, 1)
+end
+
+local function ToggleESP()
+    espEnabled = not espEnabled
+    for _, plr in ipairs(Players:GetPlayers()) do
+        if plr ~= lp then
+            local g = lp:FindFirstChildOfClass("PlayerGui")
+            if g then
+                local esp = g:FindFirstChild("ESP_" .. plr.Name)
+                if esp then esp.Enabled = espEnabled end
+            end
+            local h = workspace:FindFirstChild("Highlight_" .. plr.Name)
+            if h then
+                if espEnabled then
+                    h.Parent = plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") or nil
+                    h.FillTransparency = 0.5
+                else
+                    h.Parent = nil
+                end
+            end
+            SetHeadSize(plr, espEnabled and 2 or 1)
+        end
+    end
+end
+
+UserInputService.InputBegan:Connect(function(i, p)
+    if not p and i.KeyCode == Enum.KeyCode.Y then
+        ToggleESP()
+    end
+end)
+
+Players.PlayerAdded:Connect(CreateESP)
+Players.PlayerRemoving:Connect(RemoveESP)
+
+lp.CharacterAdded:Connect(function()
+    for _, plr in ipairs(Players:GetPlayers()) do
+        if plr ~= lp then
+            RemoveESP(plr)
+            CreateESP(plr)
+        end
+    end
+end)
+
+for _, plr in ipairs(Players:GetPlayers()) do
+    CreateESP(plr)
+end
