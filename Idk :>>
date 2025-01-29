@@ -7,22 +7,29 @@ local lp = Players.LocalPlayer
 local espEnabled = true
 local teamCheckEnabled = false
 local espNameHealthEnabled = true
+local friendCheckEnabled = false
 local connections = {}
 
 local function clapto_()
-    StarterGui:SetCore("SendNotification", { Title = "Tip!", Text = "Made by Aholo", Duration = 15 })
+    StarterGui:SetCore("SendNotification", { Title = "This script", Text = "Made by Aholo", Duration = 15 })
     task.wait(2)
     StarterGui:SetCore("SendNotification", { Title = "Tip!", Text = "Press Y to turn on/off", Duration = 15 })
     task.wait(2)
     StarterGui:SetCore("SendNotification", { Title = "Tip!", Text = "Numpad 9 to turn on/off Team Check", Duration = 15 })
     task.wait(2)
     StarterGui:SetCore("SendNotification", { Title = "Tip!", Text = "Numpad 7 to turn on/off ESP Name, Health", Duration = 15 })
+    task.wait(2)
+    StarterGui:SetCore("SendNotification", { Title = "Tip!", Text = "Numpad 8 to turn on/off Friend Check", Duration = 15 })
 end
 
 clapto_()
 
 local function GetTeamColor(plr)
     return plr.Team and plr.Team.TeamColor.Color or Color3.fromRGB(175, 25, 255)
+end
+
+local function IsFriend(plr)
+    return lp:IsFriendsWith(plr.UserId)
 end
 
 local function SetHeadSize(plr, size)
@@ -67,7 +74,11 @@ local function CreateESP(plr)
             hi.Adornee = plr.Character
             hi.FillColor = GetTeamColor(plr)
 
-            if teamCheckEnabled and plr.Team == lp.Team then
+            if friendCheckEnabled and IsFriend(plr) then
+                b.Enabled = espNameHealthEnabled
+                n.Text = espNameHealthEnabled and string.format("HP: %d", math.floor(humanoid.Health)) or ""
+                SetHeadSize(plr, 1)
+            elseif teamCheckEnabled and plr.Team == lp.Team then
                 b.Enabled = false
                 n.Text = ""
                 SetHeadSize(plr, 1)
@@ -168,6 +179,15 @@ local function ToggleESPNameHealth()
     })
 end
 
+local function ToggleFriendCheck()
+    friendCheckEnabled = not friendCheckEnabled
+    StarterGui:SetCore("SendNotification", {
+        Title = "Tip!",
+        Text = friendCheckEnabled and "Numpad 8 to turn off Friend Check" or "Numpad 8 to turn on Friend Check",
+        Duration = 5
+    })
+end
+
 UserInputService.InputBegan:Connect(function(i, p)
     if not p then
         if i.KeyCode == Enum.KeyCode.Y then
@@ -176,6 +196,8 @@ UserInputService.InputBegan:Connect(function(i, p)
             ToggleTeamCheck()
         elseif i.KeyCode == Enum.KeyCode.KeypadSeven then
             ToggleESPNameHealth()
+        elseif i.KeyCode == Enum.KeyCode.KeypadEight then
+            ToggleFriendCheck()
         end
     end
 end)
