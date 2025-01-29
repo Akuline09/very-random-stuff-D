@@ -5,17 +5,18 @@ local StarterGui = game:GetService("StarterGui")
 
 local lp = Players.LocalPlayer
 local espEnabled = true
+local teamCheckEnabled = false
+local espNameHealthEnabled = true
 local connections = {}
 
 local function clapto_()
-    for _ = 1, 3 do
-        StarterGui:SetCore("SendNotification", {
-            Title = "Tip!",
-            Text = "Made by Aholo",
-            Duration = 2
-        })
-        task.wait(2)
-    end
+    StarterGui:SetCore("SendNotification", { Title = "Tip!", Text = "Made by Aholo", Duration = 15 })
+    task.wait(2)
+    StarterGui:SetCore("SendNotification", { Title = "Tip!", Text = "Press Y to turn on/off", Duration = 15 })
+    task.wait(2)
+    StarterGui:SetCore("SendNotification", { Title = "Tip!", Text = "Numpad 9 to turn on/off Team Check", Duration = 15 })
+    task.wait(2)
+    StarterGui:SetCore("SendNotification", { Title = "Tip!", Text = "Numpad 7 to turn on/off ESP Name, Health", Duration = 15 })
 end
 
 clapto_()
@@ -54,7 +55,7 @@ local function CreateESP(plr)
 
     local hi = Instance.new("Highlight")
     hi.Name = "Highlight_" .. plr.Name
-    hi.FillTransparency = 0.5
+    hi.FillTransparency = 0.7
     hi.OutlineTransparency = 0
     hi.Adornee = nil
 
@@ -65,9 +66,20 @@ local function CreateESP(plr)
             b.Adornee = hrp
             hi.Adornee = plr.Character
             hi.FillColor = GetTeamColor(plr)
-            b.Enabled = true
-            n.Text = string.format("%s | %s | HP: %d", plr.Name, plr.Team and plr.Team.Name or "No Team", math.floor(humanoid.Health))
-            SetHeadSize(plr, 2)
+
+            if teamCheckEnabled and plr.Team == lp.Team then
+                b.Enabled = false
+                n.Text = ""
+                SetHeadSize(plr, 1)
+            else
+                b.Enabled = espNameHealthEnabled
+                if espNameHealthEnabled then
+                    n.Text = string.format("%s | %s | HP: %d", plr.Name, plr.Team and plr.Team.Name or "No Team", math.floor(humanoid.Health))
+                else
+                    n.Text = ""
+                end
+                SetHeadSize(plr, 2)
+            end
             hi.Parent = hrp
         else
             b.Adornee = nil
@@ -138,9 +150,33 @@ local function ToggleESP()
     end
 end
 
+local function ToggleTeamCheck()
+    teamCheckEnabled = not teamCheckEnabled
+    StarterGui:SetCore("SendNotification", {
+        Title = "Tip!",
+        Text = teamCheckEnabled and "Numpad 9 to turn off Team Check" or "Numpad 9 to turn on Team Check",
+        Duration = 5
+    })
+end
+
+local function ToggleESPNameHealth()
+    espNameHealthEnabled = not espNameHealthEnabled
+    StarterGui:SetCore("SendNotification", {
+        Title = "Tip!",
+        Text = espNameHealthEnabled and "Numpad 7 to turn off ESP Name, Health" or "Numpad 7 to turn on ESP Name, Health",
+        Duration = 5
+    })
+end
+
 UserInputService.InputBegan:Connect(function(i, p)
-    if not p and i.KeyCode == Enum.KeyCode.Y then
-        ToggleESP()
+    if not p then
+        if i.KeyCode == Enum.KeyCode.Y then
+            ToggleESP()
+        elseif i.KeyCode == Enum.KeyCode.KeypadNine then
+            ToggleTeamCheck()
+        elseif i.KeyCode == Enum.KeyCode.KeypadSeven then
+            ToggleESPNameHealth()
+        end
     end
 end)
 
