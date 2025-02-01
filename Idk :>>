@@ -54,15 +54,13 @@ local function CreateESP(plr)
     n.Name = "NameLabel"
     n.Size = UDim2.new(1, 0, 1, 0)
     n.BackgroundTransparency = 1
-    n.TextColor3 = Color3.new(1, 1, 1)
     n.Font = Enum.Font.SourceSansBold
     n.TextScaled = true
-    n.Text = ""
     n.Parent = b
 
     local hi = Instance.new("Highlight")
     hi.Name = "Highlight_" .. plr.Name
-    hi.FillTransparency = 0.7
+    hi.FillTransparency = 0.5
     hi.OutlineTransparency = 0
     hi.Adornee = nil
 
@@ -70,13 +68,15 @@ local function CreateESP(plr)
         if espEnabled and plr.Character and plr.Character:FindFirstChild("Humanoid") and plr.Character:FindFirstChild("HumanoidRootPart") then
             local hrp = plr.Character.HumanoidRootPart
             local humanoid = plr.Character.Humanoid
+            local teamColor = GetTeamColor(plr)
             b.Adornee = hrp
             hi.Adornee = plr.Character
-            hi.FillColor = GetTeamColor(plr)
+            hi.FillColor = teamColor
 
             if friendCheckEnabled and IsFriend(plr) then
                 b.Enabled = espNameHealthEnabled
                 n.Text = espNameHealthEnabled and string.format("HP: %d", math.floor(humanoid.Health)) or ""
+                n.TextColor3 = teamColor
                 SetHeadSize(plr, 1)
             elseif teamCheckEnabled and plr.Team == lp.Team then
                 b.Enabled = false
@@ -86,6 +86,7 @@ local function CreateESP(plr)
                 b.Enabled = espNameHealthEnabled
                 if espNameHealthEnabled then
                     n.Text = string.format("%s | %s | HP: %d", plr.Name, plr.Team and plr.Team.Name or "No Team", math.floor(humanoid.Health))
+                    n.TextColor3 = teamColor
                 else
                     n.Text = ""
                 end
