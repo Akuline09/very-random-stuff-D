@@ -65,13 +65,21 @@ local function CreateESP(plr)
     hi.Adornee = nil
 
     local function Update()
-        if espEnabled and plr.Character and plr.Character:FindFirstChild("Humanoid") and plr.Character:FindFirstChild("HumanoidRootPart") then
-            local hrp = plr.Character.HumanoidRootPart
-            local humanoid = plr.Character.Humanoid
+        if not espEnabled or not plr.Character then
+            b.Enabled = false
+            hi.Parent = nil
+            return
+        end
+
+        local hrp = plr.Character:FindFirstChild("HumanoidRootPart")
+        local humanoid = plr.Character:FindFirstChild("Humanoid")
+
+        if hrp and humanoid then
             local teamColor = GetTeamColor(plr)
             b.Adornee = hrp
             hi.Adornee = plr.Character
             hi.FillColor = teamColor
+            hi.Parent = workspace
 
             if friendCheckEnabled and IsFriend(plr) then
                 b.Enabled = espNameHealthEnabled
@@ -92,12 +100,8 @@ local function CreateESP(plr)
                 end
                 SetHeadSize(plr, 2)
             end
-            hi.Parent = hrp
         else
-            b.Adornee = nil
-            hi.Adornee = nil
             b.Enabled = false
-            SetHeadSize(plr, 1)
             hi.Parent = nil
         end
     end
@@ -110,8 +114,6 @@ local function CreateESP(plr)
     end
 
     local function OnCharacterRemoving()
-        b.Adornee = nil
-        hi.Adornee = nil
         b.Enabled = false
         hi.Parent = nil
     end
@@ -143,21 +145,8 @@ local function ToggleESP()
     espEnabled = not espEnabled
     for _, plr in ipairs(Players:GetPlayers()) do
         if plr ~= lp then
-            local g = lp:FindFirstChildOfClass("PlayerGui")
-            if g then
-                local esp = g:FindFirstChild("ESP_" .. plr.Name)
-                if esp then esp.Enabled = espEnabled end
-            end
-            local h = workspace:FindFirstChild("Highlight_" .. plr.Name)
-            if h then
-                if espEnabled then
-                    h.Parent = plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") or nil
-                    h.FillTransparency = 0.5
-                else
-                    h.Parent = nil
-                end
-            end
-            SetHeadSize(plr, espEnabled and 2 or 1)
+            RemoveESP(plr)
+            CreateESP(plr)
         end
     end
 end
