@@ -2,208 +2,253 @@ local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 local StarterGui = game:GetService("StarterGui")
-
 local lp = Players.LocalPlayer
 local espEnabled = true
 local teamCheckEnabled = false
 local espNameHealthEnabled = true
 local friendCheckEnabled = false
+local useHitbox = false
 local connections = {}
 
 local function clapto_()
-    StarterGui:SetCore("SendNotification", { Title = "This script", Text = "Made by Aholo", Duration = 15 })
-    task.wait(2)
-    StarterGui:SetCore("SendNotification", { Title = "Tip!", Text = "Press Y to turn on/off", Duration = 15 })
-    task.wait(2)
-    StarterGui:SetCore("SendNotification", { Title = "Tip!", Text = "Numpad 9 to turn on/off Team Check", Duration = 15 })
-    task.wait(2)
-    StarterGui:SetCore("SendNotification", { Title = "Tip!", Text = "Numpad 7 to turn on/off ESP Name, Health", Duration = 15 })
-    task.wait(2)
-    StarterGui:SetCore("SendNotification", { Title = "Tip!", Text = "Numpad 8 to turn on/off Friend Check", Duration = 15 })
+	StarterGui:SetCore("SendNotification", {Title="This script", Text="Made by Aholo", Duration=15})
+	task.wait(2)
+	StarterGui:SetCore("SendNotification", {Title="Tip!", Text="Press Y to turn on/off", Duration=15})
+	task.wait(2)
+	StarterGui:SetCore("SendNotification", {Title="Tip!", Text="Numpad 9 to turn on/off Team Check", Duration=15})
+	task.wait(2)
+	StarterGui:SetCore("SendNotification", {Title="Tip!", Text="Numpad 7 to turn on/off ESP Name, Health", Duration=15})
+	task.wait(2)
+	StarterGui:SetCore("SendNotification", {Title="Tip!", Text="Numpad 8 to turn on/off Friend Check", Duration=15})
+	task.wait(2)
+	StarterGui:SetCore("SendNotification", {Title="Tip!", Text="Press numpad 5 to switch headsize to hitbox", Duration=15})
 end
-
 clapto_()
 
 local function GetTeamColor(plr)
-    return plr.Team and plr.Team.TeamColor.Color or Color3.fromRGB(175, 25, 255)
+	return (plr.Team and plr.Team.TeamColor.Color) or Color3.fromRGB(175,25,255)
 end
 
 local function IsFriend(plr)
-    return lp:IsFriendsWith(plr.UserId)
+	return lp:IsFriendsWith(plr.UserId)
 end
 
 local function SetHeadSize(plr, size)
-    if plr.Character and plr.Character:FindFirstChild("Head") then
-        local head = plr.Character.Head
-        head.Size = Vector3.new(size, size, size)
-        head.CanCollide = false
-        head.Massless = true
-    end
+	if plr.Character and plr.Character:FindFirstChild("Head") then
+		local head = plr.Character.Head
+		head.Size = Vector3.new(size, size, size)
+		head.CanCollide = false
+		head.Massless = true
+	end
+end
+
+local function UpdateHitbox(plr, size)
+	if plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
+		local hrp = plr.Character.HumanoidRootPart
+		local hitbox = hrp:FindFirstChild("ESP_Hitbox")
+		if not hitbox then
+			hitbox = Instance.new("Part")
+			hitbox.Name = "ESP_Hitbox"
+			hitbox.Size = Vector3.new(size, size, size)
+			hitbox.Transparency = 1
+			hitbox.CanCollide = false
+			hitbox.Massless = true
+			hitbox.Parent = hrp
+			local weld = Instance.new("WeldConstraint")
+			weld.Part0 = hrp
+			weld.Part1 = hitbox
+			weld.Parent = hitbox
+		else
+			hitbox.Size = Vector3.new(size, size, size)
+		end
+	end
+end
+
+local function RemoveHitbox(plr)
+	if plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
+		local hrp = plr.Character.HumanoidRootPart
+		local hitbox = hrp:FindFirstChild("ESP_Hitbox")
+		if hitbox then
+			hitbox:Destroy()
+		end
+	end
+end
+
+local function UpdateESP(plr, b, n, hi)
+	if not espEnabled or not plr.Character then
+		b.Enabled = false
+		hi.Enabled = false
+		return
+	end
+	local hrp = plr.Character:FindFirstChild("HumanoidRootPart")
+	local humanoid = plr.Character:FindFirstChild("Humanoid")
+	if not hrp or not humanoid then
+		b.Enabled = false
+		hi.Enabled = false
+		return
+	end
+	b.Adornee = hrp
+	hi.Adornee = plr.Character
+	hi.FillColor = GetTeamColor(plr)
+	hi.Enabled = true
+	local isFriend = friendCheckEnabled and IsFriend(plr)
+	local isTeam = teamCheckEnabled and (plr.Team == lp.Team)
+	if isFriend then
+		if espNameHealthEnabled then
+			n.Text = string.format("HP: %d", math.floor(humanoid.Health))
+		else
+			n.Text = ""
+		end
+		b.Enabled = espNameHealthEnabled
+		if useHitbox then
+			RemoveHitbox(plr)
+		end
+	elseif isTeam then
+		b.Enabled = false
+		n.Text = ""
+		if useHitbox then
+			UpdateHitbox(plr, 1)
+		else
+			SetHeadSize(plr, 1)
+		end
+	else
+		if espNameHealthEnabled then
+			n.Text = string.format("%s | %s | HP: %d", plr.Name, (plr.Team and plr.Team.Name) or "No Team", math.floor(humanoid.Health))
+		else
+			n.Text = ""
+		end
+		b.Enabled = espNameHealthEnabled
+		if useHitbox then
+			UpdateHitbox(plr, 7)
+		else
+			SetHeadSize(plr, 2)
+		end
+	end
+	if useHitbox then
+		hi.IgnoredDescendants = {hrp}
+	else
+		hi.IgnoredDescendants = {}
+	end
 end
 
 local function CreateESP(plr)
-    if plr == lp or connections[plr] then return end
-
-    local b = Instance.new("BillboardGui")
-    b.Name = "ESP_" .. plr.Name
-    b.Size = UDim2.new(0, 200, 0, 50)
-    b.StudsOffset = Vector3.new(0, 3, 0)
-    b.AlwaysOnTop = true
-
-    local n = Instance.new("TextLabel")
-    n.Name = "NameLabel"
-    n.Size = UDim2.new(1, 0, 1, 0)
-    n.BackgroundTransparency = 1
-    n.Font = Enum.Font.SourceSansBold
-    n.TextScaled = true
-    n.Parent = b
-
-    local hi = Instance.new("Highlight")
-    hi.Name = "Highlight_" .. plr.Name
-    hi.FillTransparency = 0.5
-    hi.OutlineTransparency = 0
-    hi.Adornee = nil
-
-    local function Update()
-        if not espEnabled or not plr.Character then
-            b.Enabled = false
-            hi.Parent = nil
-            return
-        end
-
-        local hrp = plr.Character:FindFirstChild("HumanoidRootPart")
-        local humanoid = plr.Character:FindFirstChild("Humanoid")
-
-        if hrp and humanoid then
-            local teamColor = GetTeamColor(plr)
-            b.Adornee = hrp
-            hi.Adornee = plr.Character
-            hi.FillColor = teamColor
-            hi.Parent = workspace
-
-            if friendCheckEnabled and IsFriend(plr) then
-                b.Enabled = espNameHealthEnabled
-                n.Text = espNameHealthEnabled and string.format("HP: %d", math.floor(humanoid.Health)) or ""
-                n.TextColor3 = teamColor
-                SetHeadSize(plr, 1)
-            elseif teamCheckEnabled and plr.Team == lp.Team then
-                b.Enabled = false
-                n.Text = ""
-                SetHeadSize(plr, 1)
-            else
-                b.Enabled = espNameHealthEnabled
-                if espNameHealthEnabled then
-                    n.Text = string.format("%s | %s | HP: %d", plr.Name, plr.Team and plr.Team.Name or "No Team", math.floor(humanoid.Health))
-                    n.TextColor3 = teamColor
-                else
-                    n.Text = ""
-                end
-                SetHeadSize(plr, 2)
-            end
-        else
-            b.Enabled = false
-            hi.Parent = nil
-        end
-    end
-
-    local function OnCharacterAdded()
-        Update()
-        if not connections[plr] then
-            connections[plr] = RunService.RenderStepped:Connect(Update)
-        end
-    end
-
-    local function OnCharacterRemoving()
-        b.Enabled = false
-        hi.Parent = nil
-    end
-
-    plr.CharacterAdded:Connect(OnCharacterAdded)
-    plr.CharacterRemoving:Connect(OnCharacterRemoving)
-
-    b.Parent = lp:FindFirstChildOfClass("PlayerGui")
-    hi.Parent = nil
-    OnCharacterAdded()
+	if plr == lp or connections[plr] then return end
+	local b = Instance.new("BillboardGui")
+	b.Name = "ESP_" .. plr.Name
+	b.Size = UDim2.new(0,200,0,50)
+	b.StudsOffset = Vector3.new(0,3,0)
+	b.AlwaysOnTop = true
+	local n = Instance.new("TextLabel")
+	n.Name = "NameLabel"
+	n.Size = UDim2.new(1,0,1,0)
+	n.BackgroundTransparency = 1
+	n.Font = Enum.Font.SourceSansBold
+	n.TextScaled = true
+	n.TextColor3 = Color3.new(1,1,1)
+	n.Parent = b
+	local hi = Instance.new("Highlight")
+	hi.Name = "Highlight_" .. plr.Name
+	hi.FillTransparency = 0.5
+	hi.OutlineTransparency = 0
+	hi.Enabled = false
+	local function Update() UpdateESP(plr, b, n, hi) end
+	local function OnCharacterAdded()
+		Update()
+		if connections[plr] then connections[plr]:Disconnect() end
+		connections[plr] = RunService.RenderStepped:Connect(Update)
+	end
+	local function OnCharacterRemoving()
+		b.Enabled = false
+		hi.Enabled = false
+	end
+	plr.CharacterAdded:Connect(OnCharacterAdded)
+	plr.CharacterRemoving:Connect(OnCharacterRemoving)
+	b.Parent = lp:FindFirstChildOfClass("PlayerGui")
+	hi.Parent = workspace
+	OnCharacterAdded()
 end
 
 local function RemoveESP(plr)
-    if connections[plr] then
-        connections[plr]:Disconnect()
-        connections[plr] = nil
-    end
-    local g = lp:FindFirstChildOfClass("PlayerGui")
-    if g then
-        local esp = g:FindFirstChild("ESP_" .. plr.Name)
-        if esp then esp:Destroy() end
-    end
-    local h = workspace:FindFirstChild("Highlight_" .. plr.Name)
-    if h then h:Destroy() end
-    SetHeadSize(plr, 1)
+	if connections[plr] then
+		connections[plr]:Disconnect()
+		connections[plr] = nil
+	end
+	local g = lp:FindFirstChildOfClass("PlayerGui")
+	if g then
+		local esp = g:FindFirstChild("ESP_" .. plr.Name)
+		if esp then esp:Destroy() end
+	end
+	local h = workspace:FindFirstChild("Highlight_" .. plr.Name)
+	if h then h:Destroy() end
+	if useHitbox then
+		RemoveHitbox(plr)
+	else
+		SetHeadSize(plr, 1)
+	end
 end
 
 local function ToggleESP()
-    espEnabled = not espEnabled
-    for _, plr in ipairs(Players:GetPlayers()) do
-        if plr ~= lp then
-            RemoveESP(plr)
-            CreateESP(plr)
-        end
-    end
+	espEnabled = not espEnabled
+	for _, plr in ipairs(Players:GetPlayers()) do
+		if plr ~= lp then
+			RemoveESP(plr)
+			CreateESP(plr)
+		end
+	end
 end
 
 local function ToggleTeamCheck()
-    teamCheckEnabled = not teamCheckEnabled
-    StarterGui:SetCore("SendNotification", {
-        Title = "Tip!",
-        Text = teamCheckEnabled and "Numpad 9 to turn off Team Check" or "Numpad 9 to turn on Team Check",
-        Duration = 5
-    })
+	teamCheckEnabled = not teamCheckEnabled
+	StarterGui:SetCore("SendNotification", {Title="Tip!", Text=teamCheckEnabled and "Numpad 9 to turn off Team Check" or "Numpad 9 to turn on Team Check", Duration=5})
 end
 
 local function ToggleESPNameHealth()
-    espNameHealthEnabled = not espNameHealthEnabled
-    StarterGui:SetCore("SendNotification", {
-        Title = "Tip!",
-        Text = espNameHealthEnabled and "Numpad 7 to turn off ESP Name, Health" or "Numpad 7 to turn on ESP Name, Health",
-        Duration = 5
-    })
+	espNameHealthEnabled = not espNameHealthEnabled
+	StarterGui:SetCore("SendNotification", {Title="Tip!", Text=espNameHealthEnabled and "Numpad 7 to turn off ESP Name, Health" or "Numpad 7 to turn on ESP Name, Health", Duration=5})
 end
 
 local function ToggleFriendCheck()
-    friendCheckEnabled = not friendCheckEnabled
-    StarterGui:SetCore("SendNotification", {
-        Title = "Tip!",
-        Text = friendCheckEnabled and "Numpad 8 to turn off Friend Check" or "Numpad 8 to turn on Friend Check",
-        Duration = 5
-    })
+	friendCheckEnabled = not friendCheckEnabled
+	StarterGui:SetCore("SendNotification", {Title="Tip!", Text=friendCheckEnabled and "Numpad 8 to turn off Friend Check" or "Numpad 8 to turn on Friend Check", Duration=5})
+end
+
+local function ToggleHitboxMode()
+	useHitbox = not useHitbox
+	StarterGui:SetCore("SendNotification", {Title="Tip!", Text="Press numpad 5 to switch headsize to hitbox", Duration=5})
+	for _, plr in ipairs(Players:GetPlayers()) do
+		if plr ~= lp then
+			RemoveESP(plr)
+			CreateESP(plr)
+		end
+	end
 end
 
 UserInputService.InputBegan:Connect(function(i, p)
-    if not p then
-        if i.KeyCode == Enum.KeyCode.Y then
-            ToggleESP()
-        elseif i.KeyCode == Enum.KeyCode.KeypadNine then
-            ToggleTeamCheck()
-        elseif i.KeyCode == Enum.KeyCode.KeypadSeven then
-            ToggleESPNameHealth()
-        elseif i.KeyCode == Enum.KeyCode.KeypadEight then
-            ToggleFriendCheck()
-        end
-    end
+	if not p then
+		if i.KeyCode == Enum.KeyCode.Y then
+			ToggleESP()
+		elseif i.KeyCode == Enum.KeyCode.KeypadNine then
+			ToggleTeamCheck()
+		elseif i.KeyCode == Enum.KeyCode.KeypadSeven then
+			ToggleESPNameHealth()
+		elseif i.KeyCode == Enum.KeyCode.KeypadEight then
+			ToggleFriendCheck()
+		elseif i.KeyCode == Enum.KeyCode.KeypadFive then
+			ToggleHitboxMode()
+		end
+	end
 end)
 
 Players.PlayerAdded:Connect(CreateESP)
 Players.PlayerRemoving:Connect(RemoveESP)
-
 lp.CharacterAdded:Connect(function()
-    for _, plr in ipairs(Players:GetPlayers()) do
-        if plr ~= lp then
-            RemoveESP(plr)
-            CreateESP(plr)
-        end
-    end
+	for _, plr in ipairs(Players:GetPlayers()) do
+		if plr ~= lp then
+			RemoveESP(plr)
+			CreateESP(plr)
+		end
+	end
 end)
-
 for _, plr in ipairs(Players:GetPlayers()) do
-    CreateESP(plr)
+	CreateESP(plr)
 end
