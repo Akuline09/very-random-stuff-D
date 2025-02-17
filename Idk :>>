@@ -2,6 +2,7 @@ local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 local StarterGui = game:GetService("StarterGui")
+
 local lp = Players.LocalPlayer
 local espEnabled = true
 local teamCheckEnabled = false
@@ -42,34 +43,30 @@ local function SetHeadSize(plr, size)
 	end
 end
 
-local function UpdateHitbox(plr, size)
+local function SetHitboxAdornment(plr, size)
 	if plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
 		local hrp = plr.Character.HumanoidRootPart
-		local hitbox = hrp:FindFirstChild("ESP_Hitbox")
-		if not hitbox then
-			hitbox = Instance.new("Part")
-			hitbox.Name = "ESP_Hitbox"
-			hitbox.Size = Vector3.new(size, size, size)
-			hitbox.Transparency = 1
-			hitbox.CanCollide = false
-			hitbox.Massless = true
-			hitbox.Parent = hrp
-			local weld = Instance.new("WeldConstraint")
-			weld.Part0 = hrp
-			weld.Part1 = hitbox
-			weld.Parent = hitbox
-		else
-			hitbox.Size = Vector3.new(size, size, size)
+		local adorn = hrp:FindFirstChild("ESP_HitboxAdornment")
+		if not adorn then
+			adorn = Instance.new("BoxHandleAdornment")
+			adorn.Name = "ESP_HitboxAdornment"
+			adorn.Adornee = hrp
+			adorn.AlwaysOnTop = true
+			adorn.Transparency = 0.5
+			adorn.ZIndex = 5
+			adorn.Parent = hrp
 		end
+		adorn.Size = Vector3.new(size, size, size)
+		adorn.Color3 = GetTeamColor(plr)
 	end
 end
 
-local function RemoveHitbox(plr)
+local function RemoveHitboxAdornment(plr)
 	if plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
 		local hrp = plr.Character.HumanoidRootPart
-		local hitbox = hrp:FindFirstChild("ESP_Hitbox")
-		if hitbox then
-			hitbox:Destroy()
+		local adorn = hrp:FindFirstChild("ESP_HitboxAdornment")
+		if adorn then
+			adorn:Destroy()
 		end
 	end
 end
@@ -78,6 +75,7 @@ local function UpdateESP(plr, b, n, hi)
 	if not espEnabled or not plr.Character then
 		b.Enabled = false
 		hi.Enabled = false
+		RemoveHitboxAdornment(plr)
 		return
 	end
 	local hrp = plr.Character:FindFirstChild("HumanoidRootPart")
@@ -85,6 +83,7 @@ local function UpdateESP(plr, b, n, hi)
 	if not hrp or not humanoid then
 		b.Enabled = false
 		hi.Enabled = false
+		RemoveHitboxAdornment(plr)
 		return
 	end
 	b.Adornee = hrp
@@ -101,13 +100,15 @@ local function UpdateESP(plr, b, n, hi)
 		end
 		b.Enabled = espNameHealthEnabled
 		if useHitbox then
-			RemoveHitbox(plr)
+			RemoveHitboxAdornment(plr)
+		else
+			SetHeadSize(plr, 1)
 		end
 	elseif isTeam then
 		b.Enabled = false
 		n.Text = ""
 		if useHitbox then
-			UpdateHitbox(plr, 1)
+			SetHitboxAdornment(plr, 1)
 		else
 			SetHeadSize(plr, 1)
 		end
@@ -119,15 +120,13 @@ local function UpdateESP(plr, b, n, hi)
 		end
 		b.Enabled = espNameHealthEnabled
 		if useHitbox then
-			UpdateHitbox(plr, 7)
+			SetHitboxAdornment(plr, 7)
 		else
 			SetHeadSize(plr, 2)
 		end
 	end
-	if useHitbox then
-		hi.IgnoredDescendants = {hrp}
-	else
-		hi.IgnoredDescendants = {}
+	if not useHitbox then
+		RemoveHitboxAdornment(plr)
 	end
 end
 
@@ -150,6 +149,7 @@ local function CreateESP(plr)
 	hi.Name = "Highlight_" .. plr.Name
 	hi.FillTransparency = 0.5
 	hi.OutlineTransparency = 0
+	hi.Adornee = nil
 	hi.Enabled = false
 	local function Update() UpdateESP(plr, b, n, hi) end
 	local function OnCharacterAdded()
@@ -181,7 +181,7 @@ local function RemoveESP(plr)
 	local h = workspace:FindFirstChild("Highlight_" .. plr.Name)
 	if h then h:Destroy() end
 	if useHitbox then
-		RemoveHitbox(plr)
+		RemoveHitboxAdornment(plr)
 	else
 		SetHeadSize(plr, 1)
 	end
