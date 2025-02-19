@@ -9,7 +9,7 @@ local teamCheckEnabled = false
 local espNameHealthEnabled = true
 local friendCheckEnabled = false
 local useHitbox = false
-local connections = {}
+local espData = {}
 
 local function clapto_()
 	StarterGui:SetCore("SendNotification", {Title="This script", Text="Made by Aholo", Duration=15})
@@ -71,7 +71,10 @@ local function RemoveHitboxAdornment(plr)
 	end
 end
 
-local function UpdateESP(plr, b, n, hi)
+local function UpdateESP(plr, data)
+	local b = data.b
+	local n = data.n
+	local hi = data.hi
 	if not espEnabled or not plr.Character then
 		b.Enabled = false
 		hi.Enabled = false
@@ -88,7 +91,8 @@ local function UpdateESP(plr, b, n, hi)
 	end
 	b.Adornee = hrp
 	hi.Adornee = plr.Character
-	hi.FillColor = GetTeamColor(plr)
+	local teamColor = GetTeamColor(plr)
+	hi.FillColor = teamColor
 	hi.Enabled = true
 	local isFriend = friendCheckEnabled and IsFriend(plr)
 	local isTeam = teamCheckEnabled and (plr.Team == lp.Team)
@@ -98,6 +102,7 @@ local function UpdateESP(plr, b, n, hi)
 		else
 			n.Text = ""
 		end
+		n.TextColor3 = teamColor
 		b.Enabled = espNameHealthEnabled
 		if useHitbox then
 			RemoveHitboxAdornment(plr)
@@ -118,6 +123,7 @@ local function UpdateESP(plr, b, n, hi)
 		else
 			n.Text = ""
 		end
+		n.TextColor3 = teamColor
 		b.Enabled = espNameHealthEnabled
 		if useHitbox then
 			SetHitboxAdornment(plr, 7)
@@ -131,7 +137,7 @@ local function UpdateESP(plr, b, n, hi)
 end
 
 local function CreateESP(plr)
-	if plr == lp or connections[plr] then return end
+	if plr == lp or espData[plr] then return end
 	local b = Instance.new("BillboardGui")
 	b.Name = "ESP_" .. plr.Name
 	b.Size = UDim2.new(0,200,0,50)
@@ -151,50 +157,30 @@ local function CreateESP(plr)
 	hi.OutlineTransparency = 0
 	hi.Adornee = nil
 	hi.Enabled = false
-	local function Update() UpdateESP(plr, b, n, hi) end
-	local function OnCharacterAdded()
-		Update()
-		if connections[plr] then connections[plr]:Disconnect() end
-		connections[plr] = RunService.RenderStepped:Connect(Update)
-	end
-	local function OnCharacterRemoving()
-		b.Enabled = false
-		hi.Enabled = false
-	end
-	plr.CharacterAdded:Connect(OnCharacterAdded)
-	plr.CharacterRemoving:Connect(OnCharacterRemoving)
 	b.Parent = lp:FindFirstChildOfClass("PlayerGui")
 	hi.Parent = workspace
-	OnCharacterAdded()
+	espData[plr] = {b = b, n = n, hi = hi}
 end
 
 local function RemoveESP(plr)
-	if connections[plr] then
-		connections[plr]:Disconnect()
-		connections[plr] = nil
+	if espData[plr] then
+		if espData[plr].b then espData[plr].b:Destroy() end
+		if espData[plr].hi then espData[plr].hi:Destroy() end
+		espData[plr] = nil
 	end
-	local g = lp:FindFirstChildOfClass("PlayerGui")
-	if g then
-		local esp = g:FindFirstChild("ESP_" .. plr.Name)
-		if esp then esp:Destroy() end
-	end
-	local h = workspace:FindFirstChild("Highlight_" .. plr.Name)
-	if h then h:Destroy() end
-	if useHitbox then
-		RemoveHitboxAdornment(plr)
-	else
-		SetHeadSize(plr, 1)
-	end
+	RemoveHitboxAdornment(plr)
 end
+
+RunService.RenderStepped:Connect(function()
+	for _, plr in ipairs(Players:GetPlayers()) do
+		if plr ~= lp and espData[plr] then
+			UpdateESP(plr, espData[plr])
+		end
+	end
+end)
 
 local function ToggleESP()
 	espEnabled = not espEnabled
-	for _, plr in ipairs(Players:GetPlayers()) do
-		if plr ~= lp then
-			RemoveESP(plr)
-			CreateESP(plr)
-		end
-	end
 end
 
 local function ToggleTeamCheck()
@@ -215,32 +201,40 @@ end
 local function ToggleHitboxMode()
 	useHitbox = not useHitbox
 	StarterGui:SetCore("SendNotification", {Title="Tip!", Text="Press numpad 5 to switch headsize to hitbox", Duration=5})
-	for _, plr in ipairs(Players:GetPlayers()) do
-		if plr ~= lp then
-			RemoveESP(plr)
-			CreateESP(plr)
-		end
-	end
 end
 
-UserInputService.InputBegan:Connect(function(i, p)
-	if not p then
-		if i.KeyCode == Enum.KeyCode.Y then
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+	if not gameProcessed then
+		if input.KeyCode == Enum.KeyCode.Y then
 			ToggleESP()
-		elseif i.KeyCode == Enum.KeyCode.KeypadNine then
+		elseif input.KeyCode == Enum.KeyCode.KeypadNine then
 			ToggleTeamCheck()
-		elseif i.KeyCode == Enum.KeyCode.KeypadSeven then
+		elseif input.KeyCode == Enum.KeyCode.KeypadSeven then
 			ToggleESPNameHealth()
-		elseif i.KeyCode == Enum.KeyCode.KeypadEight then
+		elseif input.KeyCode == Enum.KeyCode.KeypadEight then
 			ToggleFriendCheck()
-		elseif i.KeyCode == Enum.KeyCode.KeypadFive then
+		elseif input.KeyCode == Enum.KeyCode.KeypadFive then
 			ToggleHitboxMode()
 		end
 	end
 end)
 
-Players.PlayerAdded:Connect(CreateESP)
-Players.PlayerRemoving:Connect(RemoveESP)
+for _, plr in ipairs(Players:GetPlayers()) do
+	if plr ~= lp then
+		CreateESP(plr)
+	end
+end
+
+Players.PlayerAdded:Connect(function(plr)
+	if plr ~= lp then
+		CreateESP(plr)
+	end
+end)
+
+Players.PlayerRemoving:Connect(function(plr)
+	RemoveESP(plr)
+end)
+
 lp.CharacterAdded:Connect(function()
 	for _, plr in ipairs(Players:GetPlayers()) do
 		if plr ~= lp then
@@ -249,6 +243,3 @@ lp.CharacterAdded:Connect(function()
 		end
 	end
 end)
-for _, plr in ipairs(Players:GetPlayers()) do
-	CreateESP(plr)
-end
