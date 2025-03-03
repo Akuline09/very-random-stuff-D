@@ -134,7 +134,7 @@ local function UpdateESP(plr, data)
         n.TextColor3 = teamColor
         b.Enabled = showHealthESP
         if hitboxMode then
-            SetHitbox(plr, 1)
+            SetHitbox(plr, 2)
             ResetHeadSize(plr)
         else
             SetHeadSize(plr, 1)
@@ -144,7 +144,7 @@ local function UpdateESP(plr, data)
         b.Enabled = false
         n.Text = ""
         if hitboxMode then
-            SetHitbox(plr, 1)
+            SetHitbox(plr, 2)
             ResetHeadSize(plr)
         else
             SetHeadSize(plr, 1)
