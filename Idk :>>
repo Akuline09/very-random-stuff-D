@@ -11,6 +11,8 @@ local friendCheck = false
 local hitboxMode = false
 local espInfo = {}
 local vehicleStat = {}
+local lastUpdateTime = tick()
+local updateInterval = 0.5
 
 local function clapto_()
     StarterGui:SetCore("SendNotification", {Title="This script", Text="Made by Aholo", Duration=15})
@@ -28,7 +30,7 @@ end
 clapto_()
 
 local function GetTeamColor(plr)
-    return (plr.Team and plr.Team.TeamColor.Color) or Color3.fromRGB(175, 25, 255)
+    return plr.Team and plr.Team.TeamColor.Color or Color3.fromRGB(175, 25, 255)
 end
 
 local function IsFriend(plr)
@@ -36,71 +38,66 @@ local function IsFriend(plr)
 end
 
 local function SetHeadSize(plr, size)
-    if plr.Character and plr.Character:FindFirstChild("Head") then
-        local head = plr.Character.Head
-        head.Size = Vector3.new(size, size, size)
-        head.CanCollide = false
-        head.Massless = true
+    if plr.Character then
+        local head = plr.Character:FindFirstChild("Head")
+        if head and head.Size ~= Vector3.new(size, size, size) then
+            head.Size = Vector3.new(size, size, size)
+            head.CanCollide = false
+            head.Massless = true
+        end
     end
 end
 
 local function SetHitbox(plr, size)
-    if plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
-        local hrp = plr.Character.HumanoidRootPart
-        hrp.Size = Vector3.new(size, size, size)
-        hrp.Transparency = 0.5
-        hrp.Color = GetTeamColor(plr)
-        hrp.CanCollide = false
+    if plr.Character then
+        local hrp = plr.Character:FindFirstChild("HumanoidRootPart")
+        if hrp and hrp.Size ~= Vector3.new(size, size, size) then
+            hrp.Size = Vector3.new(size, size, size)
+            hrp.Transparency = 0.5
+            hrp.Color = GetTeamColor(plr)
+            hrp.CanCollide = false
+        end
     end
 end
 
 local function RemoveHitbox(plr)
-    if plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
-        local hrp = plr.Character.HumanoidRootPart
-        hrp.Size = Vector3.new(2, 2, 1)
-        hrp.Transparency = 1
-        hrp.CanCollide = true
+    if plr.Character then
+        local hrp = plr.Character:FindFirstChild("HumanoidRootPart")
+        if hrp and hrp.Size ~= Vector3.new(2, 2, 1) then
+            hrp.Size = Vector3.new(2, 2, 1)
+            hrp.Transparency = 1
+            hrp.CanCollide = true
+        end
     end
 end
 
 local function ResetHeadSize(plr)
-    if plr.Character and plr.Character:FindFirstChild("Head") then
-        local head = plr.Character.Head
-        head.Size = Vector3.new(1, 1, 1)
+    if plr.Character then
+        local head = plr.Character:FindFirstChild("Head")
+        if head and head.Size ~= Vector3.new(1, 1, 1) then
+            head.Size = Vector3.new(1, 1, 1)
+        end
     end
 end
 
 local function OnCharacterAdded(char, plr)
-    local humanoid = char:WaitForChild("Humanoid")
-    humanoid:GetPropertyChangedSignal("SeatPart"):Connect(function()
-        local seat = humanoid.SeatPart
-        if seat and seat:IsA("VehicleSeat") then
-            vehicleStat[plr] = true
-            RemoveHitbox(plr)
-        else
-            vehicleStat[plr] = false
-            if hitboxMode and isESPOn then
-                local data = espInfo[plr]
-                if data then
-                    UpdateESP(plr, data)
-                end
+    local humanoid = char:WaitForChild("Humanoid", 1)
+    if humanoid then
+        humanoid:GetPropertyChangedSignal("SeatPart"):Connect(function()
+            vehicleStat[plr] = humanoid.SeatPart and humanoid.SeatPart:IsA("VehicleSeat")
+            if vehicleStat[plr] then
+                RemoveHitbox(plr)
+            elseif hitboxMode and isESPOn and espInfo[plr] then
+                UpdateESP(plr, espInfo[plr])
             end
-        end
-    end)
+        end)
+    end
 end
 
 local function UpdateESP(plr, data)
-    if vehicleStat[plr] then
-        return
-    end
-
-    local b = data.b
-    local n = data.n
-    local hi = data.hi
-
-    if not isESPOn or not plr.Character then
-        b.Enabled = false
-        hi.Enabled = false
+    if vehicleStat[plr] or not isESPOn or not plr.Character then
+        data.b.Enabled = false
+        data.hi.Enabled = false
         RemoveHitbox(plr)
         ResetHeadSize(plr)
         return
@@ -109,62 +106,34 @@ local function UpdateESP(plr, data)
     local hrp = plr.Character:FindFirstChild("HumanoidRootPart")
     local humanoid = plr.Character:FindFirstChild("Humanoid")
     if not hrp or not humanoid then
-        b.Enabled = false
-        hi.Enabled = false
+        data.b.Enabled = false
+        data.hi.Enabled = false
         RemoveHitbox(plr)
         ResetHeadSize(plr)
         return
     end
 
-    b.Adornee = hrp
-    hi.Adornee = plr.Character
-    local teamColor = GetTeamColor(plr)
-    hi.FillColor = teamColor
-    hi.Enabled = true
+    data.hi.Adornee = plr.Character
+    data.hi.FillColor = GetTeamColor(plr)
+    data.hi.Enabled = true
 
     local isFriend = friendCheck and IsFriend(plr)
-    local isTeam = checkTeam and (plr.Team == lp.Team)
+    local isTeam = checkTeam and plr.Team == lp.Team
 
     if isFriend then
-        if showHealthESP then
-            n.Text = string.format("HP: %d", math.floor(humanoid.Health))
-        else
-            n.Text = ""
-        end
-        n.TextColor3 = teamColor
-        b.Enabled = showHealthESP
-        if hitboxMode then
-            SetHitbox(plr, 2)
-            ResetHeadSize(plr)
-        else
-            SetHeadSize(plr, 1)
-            RemoveHitbox(plr)
-        end
+        data.n.Text = showHealthESP and "HP: " .. math.floor(humanoid.Health) or ""
+        data.n.TextColor3 = GetTeamColor(plr)
+        data.b.Enabled = showHealthESP
+        if hitboxMode then SetHitbox(plr, 2) else SetHeadSize(plr, 1) end
     elseif isTeam then
-        b.Enabled = false
-        n.Text = ""
-        if hitboxMode then
-            SetHitbox(plr, 2)
-            ResetHeadSize(plr)
-        else
-            SetHeadSize(plr, 1)
-            RemoveHitbox(plr)
-        end
+        data.b.Enabled = false
+        data.n.Text = ""
+        if hitboxMode then SetHitbox(plr, 2) else SetHeadSize(plr, 1) end
     else
-        if showHealthESP then
-            n.Text = string.format("%s | %s | HP: %d", plr.Name, (plr.Team and plr.Team.Name) or "No Team", math.floor(humanoid.Health))
-        else
-            n.Text = ""
-        end
-        n.TextColor3 = teamColor
-        b.Enabled = showHealthESP
-        if hitboxMode then
-            SetHitbox(plr, 7)
-            ResetHeadSize(plr)
-        else
-            SetHeadSize(plr, 2)
-            RemoveHitbox(plr)
-        end
+        data.n.Text = showHealthESP and plr.Name .. " | " .. (plr.Team and plr.Team.Name or "No Team") .. " | HP: " .. math.floor(humanoid.Health) or ""
+        data.n.TextColor3 = GetTeamColor(plr)
+        data.b.Enabled = showHealthESP
+        if hitboxMode then SetHitbox(plr, 7) else SetHeadSize(plr, 2) end
     end
 end
 
@@ -188,22 +157,19 @@ local function CreateESP(plr)
     hi.FillTransparency = 0.5
     hi.OutlineTransparency = 0
     hi.Enabled = false
-    b.Parent = lp:FindFirstChildOfClass("PlayerGui")
+    b.Parent = lp:FindFirstChildOfClass("PlayerGui") or lp:WaitForChild("PlayerGui", 1)
     hi.Parent = workspace
     espInfo[plr] = {b = b, n = n, hi = hi}
     vehicleStat[plr] = false
-    if plr.Character then
-        OnCharacterAdded(plr.Character, plr)
-    end
-    plr.CharacterAdded:Connect(function(char)
-        OnCharacterAdded(char, plr)
-    end)
+    if plr.Character then task.spawn(OnCharacterAdded, plr.Character, plr) end
+    plr.CharacterAdded:Connect(function(char) task.spawn(OnCharacterAdded, char, plr) end)
 end
 
 local function RemoveESP(plr)
-    if espInfo[plr] then
-        if espInfo[plr].b then espInfo[plr].b:Destroy() end
-        if espInfo[plr].hi then espInfo[plr].hi:Destroy() end
+    local data = espInfo[plr]
+    if data then
+        data.b:Destroy()
+        data.hi:Destroy()
         espInfo[plr] = nil
     end
     RemoveHitbox(plr)
@@ -211,18 +177,27 @@ local function RemoveESP(plr)
     vehicleStat[plr] = nil
 end
 
-RunService.RenderStepped:Connect(function()
-    for _, plr in ipairs(Players:GetPlayers()) do
-        if plr ~= lp and espInfo[plr] then
-            UpdateESP(plr, espInfo[plr])
+RunService.Stepped:Connect(function()
+    for _, plr in Players:GetPlayers() do
+        if plr ~= lp and espInfo[plr] and plr.Character then
+            local hrp = plr.Character:FindFirstChild("HumanoidRootPart")
+            if hrp then espInfo[plr].b.Adornee = hrp end
         end
+    end
+end)
+
+RunService.Heartbeat:Connect(function()
+    if tick() - lastUpdateTime < updateInterval then return end
+    lastUpdateTime = tick()
+    for _, plr in Players:GetPlayers() do
+        if plr ~= lp and espInfo[plr] then UpdateESP(plr, espInfo[plr]) end
     end
 end)
 
 local function ToggleESP()
     isESPOn = not isESPOn
     if not isESPOn then
-        for _, plr in ipairs(Players:GetPlayers()) do
+        for _, plr in Players:GetPlayers() do
             if plr ~= lp and espInfo[plr] then
                 espInfo[plr].b.Enabled = false
                 espInfo[plr].hi.Enabled = false
@@ -251,51 +226,35 @@ end
 local function ToggleHitboxMode()
     hitboxMode = not hitboxMode
     StarterGui:SetCore("SendNotification", {Title="Tip!", Text=hitboxMode and "Switched to Hitbox" or "Switched to Headsize", Duration=5})
-    for _, plr in ipairs(Players:GetPlayers()) do
+    for _, plr in Players:GetPlayers() do
         if plr ~= lp then
-            if hitboxMode then
-                ResetHeadSize(plr)
-            else
-                RemoveHitbox(plr)
-            end
+            if hitboxMode then ResetHeadSize(plr) else RemoveHitbox(plr) end
         end
     end
 end
 
 UserInputService.InputBegan:Connect(function(input, gameProcessed)
-    if not gameProcessed then
-        if input.KeyCode == Enum.KeyCode.Y then
-            ToggleESP()
-        elseif input.KeyCode == Enum.KeyCode.KeypadNine then
-            ToggleTeamCheck()
-        elseif input.KeyCode == Enum.KeyCode.KeypadSeven then
-            ToggleESPNameHealth()
-        elseif input.KeyCode == Enum.KeyCode.KeypadEight then
-            ToggleFriendCheck()
-        elseif input.KeyCode == Enum.KeyCode.KeypadFive then
-            ToggleHitboxMode()
-        end
+    if gameProcessed then return end
+    if input.KeyCode == Enum.KeyCode.Y then ToggleESP()
+    elseif input.KeyCode == Enum.KeyCode.KeypadNine then ToggleTeamCheck()
+    elseif input.KeyCode == Enum.KeyCode.KeypadSeven then ToggleESPNameHealth()
+    elseif input.KeyCode == Enum.KeyCode.KeypadEight then ToggleFriendCheck()
+    elseif input.KeyCode == Enum.KeyCode.KeypadFive then ToggleHitboxMode()
     end
 end)
 
-for _, plr in ipairs(Players:GetPlayers()) do
-    if plr ~= lp then
-        CreateESP(plr)
-    end
+for _, plr in Players:GetPlayers() do
+    if plr ~= lp then CreateESP(plr) end
 end
 
 Players.PlayerAdded:Connect(function(plr)
-    if plr ~= lp then
-        CreateESP(plr)
-    end
+    if plr ~= lp then CreateESP(plr) end
 end)
 
-Players.PlayerRemoving:Connect(function(plr)
-    RemoveESP(plr)
-end)
+Players.PlayerRemoving:Connect(RemoveESP)
 
 lp.CharacterAdded:Connect(function()
-    for _, plr in ipairs(Players:GetPlayers()) do
+    for _, plr in Players:GetPlayers() do
         if plr ~= lp then
             RemoveESP(plr)
             CreateESP(plr)
