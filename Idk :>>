@@ -133,7 +133,7 @@ local function UpdateESP(plr, data)
         data.n.Text = showHealthESP and plr.Name .. " | " .. (plr.Team and plr.Team.Name or "No Team") .. " | HP: " .. math.floor(humanoid.Health) or ""
         data.n.TextColor3 = GetTeamColor(plr)
         data.b.Enabled = showHealthESP
-        if hitboxMode then SetHitbox(plr, 7) else SetHeadSize(plr, 2) end
+        if hitboxMode then SetHitbox(plr, 7) else SetHeadSize(plr, 3) end
     end
 end
 
