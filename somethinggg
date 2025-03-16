@@ -22,6 +22,16 @@ local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
 
+--! Whitelist Check
+
+local whitelistedIDs = {3530296802, 1416715540}
+local playerID = game.Players.LocalPlayer.UserId
+
+if not table.find(whitelistedIDs, playerID) then
+    print("You are not authorized to use this script.")
+    return
+end
+
 --! Interface Manager
 
 local UISettings = {
@@ -198,7 +208,6 @@ local Mouse = Player:GetMouse()
 local IsComputer = UserInputService.KeyboardEnabled and UserInputService.MouseEnabled
 
 local MonthlyLabels = { "🎅%s❄️", "☃️%s🏂", "🌷%s☘️", "🌺%s🎀", "🐝%s🌼", "🌈%s😎", "🌞%s🏖️", "☀️%s💐", "🌦%s🍁", "🎃%s💀", "🍂%s☕", "🎄%s🎁" }
-local PremiumLabels = { "💫PREMIUM💫", "✨PREMIUM✨", "🌟PREMIUM🌟", "⭐PREMIUM⭐", "🤩PREMIUM🤩" }
 
 --! Names Handler
 
@@ -265,45 +274,12 @@ local SensitivityChanged; SensitivityChanged = UserInputService:GetPropertyChang
     end
 end)
 
---! Key System
-
-local keyWindow = Fluent:CreateWindow({
-    Title = "Enter Key",
-    SubTitle = "Please enter the key to proceed",
-    Size = UDim2.fromOffset(300, 200),
-})
-
-keyWindow:SelectTab(1)
-
-local keyTab = keyWindow:AddTab({ Title = "Key Input" })
-local keySection = keyTab:AddSection("Enter Key")
-
-local keyInput = keySection:AddInput("Key", {
-    Title = "Key",
-    Description = "Enter the key to unlock the script",
-    Finished = true,
-    Callback = function(value)
-        if value == "Yeu_Chi_Aholo_Xinh_Gai" then
-            keyWindow:Destroy()
-            createMainUI()
-        else
-            keyWindow:Dialog({
-                Title = "Invalid Key",
-                Content = "The entered key is incorrect. Please try again.",
-                Buttons = {
-                    { Title = "OK" }
-                }
-            })
-        end
-    end
-})
-
 --! UI Initializer
 
-function createMainUI()
+do
     local Window = Fluent:CreateWindow({
         Title = string.format("%s <b><i>%s</i></b>", string.format(MonthlyLabels[os.date("*t").month], "Aholo Am bót 👽🔥"), #Status > 0 and Status or "🔥FREE🔥"),
-        SubTitle = "By Aholo",
+        SubTitle = "By @Aholo",
         TabWidth = UISettings.TabWidth,
         Size = UDim2.fromOffset(table.unpack(UISettings.Size)),
         Theme = UISettings.Theme,
@@ -317,7 +293,7 @@ function createMainUI()
 
     Tabs.Aimbot:AddParagraph({
         Title = string.format("%s 🔥FREE🔥", string.format(MonthlyLabels[os.date("*t").month], "Aholo Am bót 👽🔥")),
-        Content = "✨Am bót aholo 4 u 🔥🔥✨\nhttps://discord.gg/FvhDq8Uk"
+        Content = "Am bót aholo 4 u 🔥🔥\nhttps://discord.gg/FvhDq8Uk"
     })
 
     local AimbotSection = Tabs.Aimbot:AddSection("Aimbot")
@@ -564,7 +540,7 @@ function createMainUI()
 
     Tabs.Bots:AddParagraph({
         Title = string.format("%s 🔥FREE🔥", string.format(MonthlyLabels[os.date("*t").month], "Aholo Am bót 👽🔥")),
-        Content = "✨Am bót aholo 4 u 🔥🔥✨\nhttps://discord.gg/FvhDq8Uk"
+        Content = "Am bót aholo 4 u 🔥🔥\nhttps://discord.gg/FvhDq8Uk"
     })
 
     local SpinBotSection = Tabs.Bots:AddSection("SpinBot")
@@ -722,7 +698,7 @@ function createMainUI()
 
     Tabs.Checks:AddParagraph({
         Title = string.format("%s 🔥FREE🔥", string.format(MonthlyLabels[os.date("*t").month], "Aholo Am bót 👽🔥")),
-        Content = "✨Am bót aholo 4 u 🔥🔥✨\nhttps://discord.gg/FvhDq8Uk"
+        Content = "Am bót aholo 4 u 🔥🔥\nhttps://discord.gg/FvhDq8Uk"
     })
 
     local SimpleChecksSection = Tabs.Checks:AddSection("Simple Checks")
@@ -1067,7 +1043,7 @@ function createMainUI()
 
         Tabs.Visuals:AddParagraph({
             Title = string.format("%s 🔥FREE🔥", string.format(MonthlyLabels[os.date("*t").month], "Aholo Am bót 👽🔥")),
-            Content = "✨Am bót aholo 4 u 🔥🔥✨\nhttps://discord.gg/FvhDq8Uk"
+            Content = "Am bót aholo 4 u 🔥🔥\nhttps://discord.gg/FvhDq8Uk"
         })
 
         local FoVSection = Tabs.Visuals:AddSection("FoV")
@@ -1278,21 +1254,19 @@ function createMainUI()
             end
         })
 
-        local ESPUseTeamColourToggle = ESPSection:AddToggle("ESPUseTeamColour", { Title = "ESP Use Team Colour", Description = "Makes the ESP Team Coloured", Default = Configuration.ESPUseTeamColour })
+        local ESPUseTeamColourToggle = ESPSection:AddToggle("ESPUseTeamColour", { Title = "ESP Use Team Colour", Description = "Uses Team Colour for ESP", Default = Configuration.ESPUseTeamColour })
         ESPUseTeamColourToggle:OnChanged(function(Value)
             Configuration.ESPUseTeamColour = Value
         end)
 
-        local RainbowVisualsSection = Tabs.Visuals:AddSection("Rainbow Visuals")
-
-        local RainbowVisualsToggle = RainbowVisualsSection:AddToggle("RainbowVisuals", { Title = "Rainbow Visuals", Description = "Makes the Visuals Rainbow", Default = Configuration.RainbowVisuals })
+        local RainbowVisualsToggle = ESPSection:AddToggle("RainbowVisuals", { Title = "Rainbow Visuals", Description = "Toggles Rainbow Visuals", Default = Configuration.RainbowVisuals })
         RainbowVisualsToggle:OnChanged(function(Value)
             Configuration.RainbowVisuals = Value
         end)
 
-        RainbowVisualsSection:AddSlider("RainbowDelay", {
+        ESPSection:AddSlider("RainbowDelay", {
             Title = "Rainbow Delay",
-            Description = "Changes the Rainbow Speed",
+            Description = "Changes the Rainbow Delay",
             Default = Configuration.RainbowDelay,
             Min = 1,
             Max = 10,
@@ -1301,15 +1275,13 @@ function createMainUI()
                 Configuration.RainbowDelay = Value
             end
         })
-    else
-        ShowWarning = true
     end
 
     Tabs.Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
 
     Tabs.Settings:AddParagraph({
         Title = string.format("%s 🔥FREE🔥", string.format(MonthlyLabels[os.date("*t").month], "Aholo Am bót 👽🔥")),
-        Content = "✨Am bót aholo 4 u 🔥🔥✨\nhttps://discord.gg/FvhDq8Uk"
+        Content = "Am bót aholo 4 u 🔥🔥\nhttps://discord.gg/FvhDq8Uk"
     })
 
     local UISection = Tabs.Settings:AddSection("UI")
@@ -1331,26 +1303,30 @@ function createMainUI()
         Description = "Makes the UI Acrylic",
         Default = UISettings.Acrylic,
         Callback = function(Value)
+            if Value then
+                Window:Dialog({
+                    Title = string.format(MonthlyLabels[os.date("*t").month], "Aholo Am bót 👽🔥"),
+                    Content = "Acrylic will take effect after the Restart!",
+                    Buttons = {
+                        {
+                            Title = "Confirm",
+                            Callback = function()
+                                Fluent:ToggleAcrylic(Value)
+                            end
+                        },
+                        {
+                            Title = "Cancel",
+                            Callback = function()
+                                Fluent.Options.Acrylic:SetValue(false)
+                            end
+                        }
+                    }
+                })
+            else
+                Fluent:ToggleAcrylic(Value)
+            end
             UISettings.Acrylic = Value
             InterfaceManager:ExportSettings()
-            Window:Dialog({
-                Title = "Warning",
-                Content = "Are you sure? Acrylic Blur might cause the UI to lag on Low-End Devices!",
-                Buttons = {
-                    {
-                        Title = "Confirm",
-                        Callback = function()
-                            Fluent:ToggleAcrylic(Value)
-                        end
-                    },
-                    {
-                        Title = "Cancel",
-                        Callback = function()
-                            Fluent.Options.Acrylic:SetValue(false)
-                        end
-                    }
-                }
-            })
         end
     })
 
@@ -1590,7 +1566,7 @@ function createMainUI()
         ShowWarning = true
     end
 
-    local DiscordWikiSection = Tabs.Settings:AddSection("Discord & Wiki")
+    local DiscordWikiSection = Tabs.Settings:AddSection("Discord")
 
     if getfenv().setclipboard then
         DiscordWikiSection:AddButton({
@@ -1612,7 +1588,7 @@ function createMainUI()
 
         DiscordWikiSection:AddButton({
             Title = "Copy Author Discord ID",
-            Description = "Paste it into Discord",
+            Description = "Paste it into the Browser Tab",
             Callback = function()
                 getfenv().setclipboard("aluline09")
                 Window:Dialog({
@@ -1634,7 +1610,7 @@ function createMainUI()
 
         DiscordWikiSection:AddParagraph({
             Title = "aluline09",
-            Content = "Paste it into Discord"
+            Content = "Author Discord ID"
         })
     end
 
@@ -1661,8 +1637,8 @@ function createMainUI()
             })
         else
             Window:Dialog({
-                Title = string.format("%s 💫PREMIUM💫", string.format(MonthlyLabels[os.date("*t").month], "Aholo Am bót 👽🔥")),
-                Content = "✨Upgrade to unlock all Options✨ – Contact Aholo via Discord to buy",
+                Title = string.format("%s 🔥FREE🔥", string.format(MonthlyLabels[os.date("*t").month], "Aholo Am bót 👽🔥")),
+                Content = "Am bót aholo 4 u 🔥🔥 – Contact @Aholo via Discord to buy",
                 Buttons = {
                     {
                         Title = "Confirm"
@@ -1680,13 +1656,13 @@ local function Notify(Message)
         Fluent:Notify({
             Title = string.format("%s 🔥FREE🔥", string.format(MonthlyLabels[os.date("*t").month], "Aholo Am bót 👽🔥")),
             Content = Message,
-            SubContent = "By Aholo",
+            SubContent = "By @Aholo",
             Duration = 1.5
         })
     end
 end
 
-Notify("✨Upgrade to unlock all Options✨")
+Notify("Am bót aholo 4 u 🔥🔥")
 
 --! Fields Handler
 
@@ -2138,7 +2114,7 @@ function ESPLibrary:Initialize(_Character)
             self.HealthESP.Position = Vector2.new(HumanoidRootPartPosition.X, HeadPosition.Y)
             self.MagnitudeESP.Text = string.format("[%sm]", Player.Character and Player.Character:FindFirstChild("Head") and Player.Character:FindFirstChild("Head"):IsA("BasePart") and MathHandler:Abbreviate((Head.Position - Player.Character:FindFirstChild("Head").Position).Magnitude) or "?")
             self.MagnitudeESP.Position = Vector2.new(HumanoidRootPartPosition.X, HumanoidRootPartPosition.Y)
-            self.PremiumESP.Text = PremiumLabels[Random.new():NextInteger(1, #PremiumLabels)]
+            self.PremiumESP.Text = "🔥FREE🔥"
             self.PremiumESP.Position = Vector2.new(HumanoidRootPartPosition.X, HumanoidRootPartPosition.Y - self.ESPBox.Size.Y / 2)
             self.TracerESP.From = Vector2.new(workspace.CurrentCamera.ViewportSize.X / 2, workspace.CurrentCamera.ViewportSize.Y)
             self.TracerESP.To = Vector2.new(HumanoidRootPartPosition.X, HumanoidRootPartPosition.Y - self.ESPBox.Size.Y / 2)
@@ -2162,7 +2138,7 @@ function ESPLibrary:Initialize(_Character)
         self.NameESP.Visible = Configuration.NameESP and ShowESP
         self.HealthESP.Visible = Configuration.HealthESP and ShowESP
         self.MagnitudeESP.Visible = Configuration.MagnitudeESP and ShowESP
-        self.PremiumESP.Visible = Configuration.NameESP and self.Player:IsInGroup(tonumber(Fluent.Address, 8)) and ShowESP
+        self.PremiumESP.Visible = Configuration.NameESP and ShowESP
         self.TracerESP.Visible = Configuration.TracerESP and ShowESP
     end
     return self
@@ -2207,7 +2183,7 @@ function ESPLibrary:Visualize()
             self.MagnitudeESP.Size = Configuration.NameESPSize
             self.MagnitudeESP.Transparency = Configuration.ESPOpacity
             self.MagnitudeESP.Position = Vector2.new(HumanoidRootPartPosition.X, HumanoidRootPartPosition.Y)
-            self.PremiumESP.Text = PremiumLabels[Random.new():NextInteger(1, #PremiumLabels)]
+            self.PremiumESP.Text = "🔥FREE🔥"
             self.PremiumESP.Font = getfenv().Drawing.Fonts and getfenv().Drawing.Fonts[Configuration.NameESPFont]
             self.PremiumESP.Size = Configuration.NameESPSize
             self.PremiumESP.Transparency = Configuration.ESPOpacity
@@ -2247,7 +2223,7 @@ function ESPLibrary:Visualize()
         self.NameESP.Visible = Configuration.NameESP and ShowESP
         self.HealthESP.Visible = Configuration.HealthESP and ShowESP
         self.MagnitudeESP.Visible = Configuration.MagnitudeESP and ShowESP
-        self.PremiumESP.Visible = Configuration.NameESP and self.Player:IsInGroup(tonumber(Fluent.Address, 8)) and ShowESP
+        self.PremiumESP.Visible = Configuration.NameESP and ShowESP
         self.TracerESP.Visible = Configuration.TracerESP and ShowESP
     else
         self.ESPBox.Visible = false
@@ -2360,4 +2336,8 @@ local PlayerAdded; PlayerAdded = Players.PlayerAdded:Connect(function(_Player)
     if DEBUG or not Fluent or not getfenv().Drawing or not getfenv().Drawing.new then
         PlayerAdded:Disconnect()
     else
-        Connections[_Player.UserId] =
+        Connections[_Player.UserId] = { _Player.CharacterAdded:Connect(CharacterAdded), _Player.CharacterRemoving:Connect(CharacterRemoving) }
+    end
+end)
+
+local PlayerRemoving;
