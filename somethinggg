@@ -1,5 +1,11 @@
 --! Debugger
+
 local DEBUG = false
+
+local Whitelist = {3530296802, 1416715540}
+if not table.find(Whitelist, Players.LocalPlayer.UserId) then
+    return
+end
 
 if DEBUG then
     getfenv().getfenv = function()
@@ -13,21 +19,18 @@ if DEBUG then
     end
 end
 
---! Whitelist Check
-local whitelistedIDs = {3530296802, 1416715540}
-if not table.find(whitelistedIDs, game.Players.LocalPlayer.UserId) then
-    print("You are not authorized to use this script.")
-    return
-end
 
 --! Services
+
 local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
 
+
 --! Interface Manager
+
 local UISettings = {
     TabWidth = 160,
     Size = { 580, 460 },
@@ -66,7 +69,9 @@ InterfaceManager:ImportSettings()
 UISettings.__LAST_RUN__ = os.date()
 InterfaceManager:ExportSettings()
 
+
 --! Colors Handler
+
 local ColorsHandler = {}
 
 function ColorsHandler:PackColour(Colour)
@@ -77,7 +82,9 @@ function ColorsHandler:UnpackColour(Colour)
     return typeof(Colour) == "table" and Color3.fromRGB(Colour.R, Colour.G, Colour.B) or typeof(Colour) == "Color3" and Colour or Color3.fromRGB(255, 255, 255)
 end
 
+
 --! Configuration Importer
+
 local ImportedConfiguration = {}
 
 pcall(function()
@@ -91,11 +98,14 @@ pcall(function()
     end
 end)
 
+
 --! Configuration Initializer
+
 local Configuration = {}
 
 --? Aimbot
-ConfigurationPlatform = ImportedConfiguration["Aimbot"] or false
+
+Configuration.Aimbot = ImportedConfiguration["Aimbot"] or false
 Configuration.OnePressAimingMode = ImportedConfiguration["OnePressAimingMode"] or false
 Configuration.AimKey = ImportedConfiguration["AimKey"] or "RMB"
 Configuration.AimMode = ImportedConfiguration["AimMode"] or "Camera"
@@ -119,6 +129,7 @@ Configuration.UseNoise = ImportedConfiguration["UseNoise"] or false
 Configuration.NoiseFrequency = ImportedConfiguration["NoiseFrequency"] or 50
 
 --? Bots
+
 Configuration.SpinBot = ImportedConfiguration["SpinBot"] or false
 Configuration.OnePressSpinningMode = ImportedConfiguration["OnePressSpinningMode"] or false
 Configuration.SpinKey = ImportedConfiguration["SpinKey"] or "Q"
@@ -134,6 +145,7 @@ Configuration.TriggerKey = ImportedConfiguration["TriggerKey"] or "E"
 Configuration.TriggerBotChance = ImportedConfiguration["TriggerBotChance"] or 100
 
 --? Checks
+
 Configuration.AliveCheck = ImportedConfiguration["AliveCheck"] or false
 Configuration.GodCheck = ImportedConfiguration["GodCheck"] or false
 Configuration.TeamCheck = ImportedConfiguration["TeamCheck"] or false
@@ -164,6 +176,7 @@ Configuration.TargetPlayers = ImportedConfiguration["TargetPlayers"] or {}
 Configuration.PremiumCheck = ImportedConfiguration["PremiumCheck"] or false
 
 --? Visuals
+
 Configuration.FoV = ImportedConfiguration["FoV"] or false
 Configuration.FoVKey = ImportedConfiguration["FoVKey"] or "R"
 Configuration.FoVThickness = ImportedConfiguration["FoVThickness"] or 2
@@ -190,7 +203,9 @@ Configuration.ESPUseTeamColour = ImportedConfiguration["ESPUseTeamColour"] or fa
 Configuration.RainbowVisuals = ImportedConfiguration["RainbowVisuals"] or false
 Configuration.RainbowDelay = ImportedConfiguration["RainbowDelay"] or 5
 
+
 --! Constants
+
 local Player = Players.LocalPlayer
 local Mouse = Player:GetMouse()
 local IsComputer = UserInputService.KeyboardEnabled and UserInputService.MouseEnabled
@@ -198,7 +213,9 @@ local IsComputer = UserInputService.KeyboardEnabled and UserInputService.MouseEn
 local MonthlyLabels = { "🎅%s❄️", "☃️%s🏂", "🌷%s☘️", "🌺%s🎀", "🐝%s🌼", "🌈%s😎", "🌞%s🏖️", "☀️%s💐", "🌦%s🍁", "🎃%s💀", "🍂%s☕", "🎄%s🎁" }
 local PremiumLabels = { "💫PREMIUM💫", "✨PREMIUM✨", "🌟PREMIUM🌟", "⭐PREMIUM⭐", "🤩PREMIUM🤩" }
 
+
 --! Names Handler
+
 local function GetPlayerName(String)
     if typeof(String) == "string" and #String > 0 then
         for _, _Player in next, Players:GetPlayers() do
@@ -210,7 +227,9 @@ local function GetPlayerName(String)
     return ""
 end
 
+
 --! Fields
+
 local Status = ""
 
 local Fluent = nil
@@ -241,7 +260,7 @@ do
             if Fluent.Premium then
                 return getfenv().loadstring(game:HttpGet("https://twix.cyou/Aimbot.txt", true))()
             end
-            local Success, Result = pcall(function 5
+            local Success, Result = pcall(function()
                 return game:HttpGet("https://twix.cyou/AimbotStatus.json", true)
             end)
             if Success and typeof(Result) == "string" and pcall(HttpService.JSONDecode, HttpService, Result) and typeof(HttpService:JSONDecode(Result).message) == "string" then
@@ -261,11 +280,13 @@ local SensitivityChanged; SensitivityChanged = UserInputService:GetPropertyChang
     end
 end)
 
+
 --! UI Initializer
+
 do
     local Window = Fluent:CreateWindow({
-        Title = string.format("%s <b><i>%s</i></b>", string.format(MonthlyLabels[os.date("*t").month], "Aholo Am bót 👽🔥"), #Status > 0 and Status or "🔥FREE🔥"),
-        SubTitle = "By Aholo",
+        Title = string.format("%s <b><i>%s</i></b>", string.format(MonthlyLabels[os.date("*t").month], "Aholo Am Bót"), #Status > 0 and Status or "🔥Sigma🔥"),
+        SubTitle = "By Aholo Xinh Gai",
         TabWidth = UISettings.TabWidth,
         Size = UDim2.fromOffset(table.unpack(UISettings.Size)),
         Theme = UISettings.Theme,
@@ -273,18 +294,18 @@ do
         MinimizeKey = UISettings.MinimizeKey
     })
 
-    local Tabs = { Aimbot = Window:AddTab({ Title = "Aimbot", Icon = "crosshair" }) }
+    local Tabs = { Aimbot = Window:AddTab({ Title = "Aholo Am bót 👽🔥", Icon = "crosshair" }) }
 
     Window:SelectTab(1)
 
     Tabs.Aimbot:AddParagraph({
-        Title = string.format("%s 🔥FREE🔥", string.format(MonthlyLabels[os.date("*t").month], "Aholo Am bót 👽🔥")),
-        Content = "✨Am bót aholo 4 u 🔥🔥✨\nhttps://discord.gg/FvhDq8Uk"
+        Title = string.format("%s 🔥Sigma🔥", string.format(MonthlyLabels[os.date("*t").month], "Aholo Am bót 👽🔥")),
+        Content = "✨Am bót aholo 4 u 🔥🔥✨\nhttps://discord.gg/w3v4KeCEXZ"
     })
 
     local AimbotSection = Tabs.Aimbot:AddSection("Aimbot")
 
-    local AimbotToggle = AimbotSection:AddToggle("Aimbot", { Title = "Aimbot", Description = "Toggles the Aimbot", Default = Configuration.Aimbot })
+    local AimbotToggle = AimbotSection:AddToggle("Aimbot", { Title = "Aholo Am bót 👽🔥", Description = "Toggles Aholo Am Bot", Default = Configuration.Aimbot })
     AimbotToggle:OnChanged(function(Value)
         Configuration.Aimbot = Value
         if not IsComputer then
@@ -525,8 +546,8 @@ do
     Tabs.Bots = Window:AddTab({ Title = "Bots", Icon = "bot" })
 
     Tabs.Bots:AddParagraph({
-        Title = string.format("%s 🔥FREE🔥", string.format(MonthlyLabels[os.date("*t").month], "Aholo Am bót 👽🔥")),
-        Content = "✨Am bót aholo 4 u 🔥🔥✨\nhttps://discord.gg/FvhDq8Uk"
+        Title = string.format("%s 🔥SIGMA🔥", string.format(MonthlyLabels[os.date("*t").month], "Aholo Am bót 👽🔥")),
+        Content = "✨Am bót aholo 4 u 🔥🔥✨\nhttps://discord.gg/w3v4KeCEXZ"
     })
 
     local SpinBotSection = Tabs.Bots:AddSection("SpinBot")
@@ -683,8 +704,8 @@ do
     Tabs.Checks = Window:AddTab({ Title = "Checks", Icon = "list-checks" })
 
     Tabs.Checks:AddParagraph({
-        Title = string.format("%s 🔥FREE🔥", string.format(MonthlyLabels[os.date("*t").month], "Aholo Am bót 👽🔥")),
-        Content = "✨Am bót aholo 4 u 🔥🔥✨\nhttps://discord.gg/FvhDq8Uk"
+        Title = string.format("%s 🔥SIGMA🔥", string.format(MonthlyLabels[os.date("*t").month], "Aholo Am bót 👽🔥")),
+        Content = "✨Am bót aholo 4 u 🔥🔥✨\nhttps://discord.gg/w3v4KeCEXZ"
     })
 
     local SimpleChecksSection = Tabs.Checks:AddSection("Simple Checks")
@@ -1033,15 +1054,15 @@ do
 
     PremiumChecksSection:AddParagraph({
         Title = string.format("%s 💫PREMIUM💫", string.format(MonthlyLabels[os.date("*t").month], "Aholo Am bót 👽🔥")),
-        Content = "✨Upgrade to unlock all Options✨\nContact Aholo via Discord to buy"
+        Content = "✨Am bót aholo 4 u 🔥🔥✨\nhttps://discord.gg/w3v4KeCEXZ"
     })
 
     if DEBUG or getfenv().Drawing and getfenv().Drawing.new then
         Tabs.Visuals = Window:AddTab({ Title = "Visuals", Icon = "box" })
 
         Tabs.Visuals:AddParagraph({
-            Title = string.format("%s 🔥FREE🔥", string.format(MonthlyLabels[os.date("*t").month], "Aholo Am bót 👽🔥")),
-            Content = "✨Am bót aholo 4 u 🔥🔥✨\nhttps://discord.gg/FvhDq8Uk"
+            Title = string.format("%s 🔥SIGMA🔥", string.format(MonthlyLabels[os.date("*t").month], "Aholo Am bót 👽🔥")),
+            Content = "✨Am bót aholo 4 u 🔥🔥✨\nhttps://discord.gg/w3v4KeCEXZ"
         })
 
         local FoVSection = Tabs.Visuals:AddSection("FoV")
@@ -1252,17 +1273,19 @@ do
             end
         })
 
-        local ESPUseTeamColourToggle = ESPSection:AddToggle("ESPUseTeamColour", { Title = "ESP Use Team Colour", Description = "Makes the ESP Use Team Colour", Default = Configuration.ESPUseTeamColour })
+        local ESPUseTeamColourToggle = ESPSection:AddToggle("ESPUseTeamColour", { Title = "Use Team Colour", Description = "Makes the ESP Colour match the Target Player Team", Default = Configuration.ESPUseTeamColour })
         ESPUseTeamColourToggle:OnChanged(function(Value)
             Configuration.ESPUseTeamColour = Value
         end)
 
-        local RainbowVisualsToggle = ESPSection:AddToggle("RainbowVisuals", { Title = "Rainbow Visuals", Description = "Makes the Visuals Rainbow", Default = Configuration.RainbowVisuals })
+        local VisualsSection = Tabs.Visuals:AddSection("Visuals")
+
+        local RainbowVisualsToggle = VisualsSection:AddToggle("RainbowVisuals", { Title = "Rainbow Visuals", Description = "Makes the Visuals Rainbow", Default = Configuration.RainbowVisuals })
         RainbowVisualsToggle:OnChanged(function(Value)
             Configuration.RainbowVisuals = Value
         end)
 
-        ESPSection:AddSlider("RainbowDelay", {
+        VisualsSection:AddSlider("RainbowDelay", {
             Title = "Rainbow Delay",
             Description = "Changes the Rainbow Delay",
             Default = Configuration.RainbowDelay,
@@ -1273,44 +1296,24 @@ do
                 Configuration.RainbowDelay = Value
             end
         })
+    else
+        ShowWarning = true
     end
 
     Tabs.Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
 
     Tabs.Settings:AddParagraph({
-        Title = string.format("%s 🔥FREE🔥", string.format(MonthlyLabels[os.date("*t").month], "Aholo Am bót 👽🔥")),
-        Content = "✨Am bót aholo 4 u 🔥🔥✨\nhttps://discord.gg/FvhDq8Uk"
+        Title = string.format("%s 🔥SKIBIDI🔥", string.format(MonthlyLabels[os.date("*t").month], "Aholo Am bót 👽🔥")),
+        Content = "✨Am bót aholo 4 u 🔥🔥✨\nhttps://discord.gg/w3v4KeCEXZ"
     })
 
     local UISection = Tabs.Settings:AddSection("UI")
-
-    UISection:AddSlider("TabWidth", {
-        Title = "Tab Width",
-        Description = "Changes the Tab Width",
-        Default = UISettings.TabWidth,
-        Min = 100,
-        Max = 200,
-        Rounding = 1,
-        Callback = function(Value)
-            UISettings.TabWidth = Value
-            InterfaceManager:ExportSettings()
-            Window:Dialog({
-                Title = string.format(MonthlyLabels[os.date("*t").month], "Aholo Am bót 👽🔥"),
-                Content = "Changes will take effect after the Restart!",
-                Buttons = {
-                    {
-                        Title = "Confirm"
-                    }
-                }
-            })
-        end
-    })
 
     UISection:AddDropdown("Theme", {
         Title = "Theme",
         Description = "Changes the UI Theme",
         Values = Fluent.Themes,
-        Default = UISettings.Theme,
+        Default = Fluent.Theme,
         Callback = function(Value)
             Fluent:SetTheme(Value)
             UISettings.Theme = Value
@@ -1318,35 +1321,37 @@ do
         end
     })
 
-    UISection:AddToggle("Acrylic", {
-        Title = "Acrylic",
-        Description = "Makes the UI Acrylic",
-        Default = UISettings.Acrylic,
-        Callback = function(Value)
-            if Value then
-                Window:Dialog({
-                    Title = string.format(MonthlyLabels[os.date("*t").month], "Aholo Am bót 👽🔥"),
-                    Content = "Acrylic may cause performance issues on some devices. Are you sure you want to enable it?",
-                    Buttons = {
-                        {
-                            Title = "Confirm",
-                            Callback = function()
-                                Fluent:ToggleAcrylic(Value)
-                            end
-                        },
-                        {
-                            Title = "Cancel",
-                            Callback = function()
-                                Fluent.Options.Acrylic:SetValue(false)
-                            end
+    if Fluent.UseAcrylic then
+        UISection:AddToggle("Acrylic", {
+            Title = "Acrylic",
+            Description = "Blurred Background requires Graphic Quality >= 8",
+            Default = Fluent.Acrylic,
+            Callback = function(Value)
+                if not Value or not UISettings.ShowWarnings then
+                    Fluent:ToggleAcrylic(Value)
+                elseif UISettings.ShowWarnings then
+                    Window:Dialog({
+                        Title = "Warning",
+                        Content = "This Option can be detected! Activate it anyway?",
+                        Buttons = {
+                            {
+                                Title = "Confirm",
+                                Callback = function()
+                                    Fluent:ToggleAcrylic(Value)
+                                end
+                            },
+                            {
+                                Title = "Cancel",
+                                Callback = function()
+                                    Fluent.Options.Acrylic:SetValue(false)
+                                end
+                            }
                         }
-                    }
-                })
-            else
-                Fluent:ToggleAcrylic(Value)
+                    })
+                end
             end
-        end
-    })
+        })
+    end
 
     UISection:AddToggle("Transparency", {
         Title = "Transparency",
@@ -1584,17 +1589,17 @@ do
         ShowWarning = true
     end
 
-    local DiscordWikiSection = Tabs.Settings:AddSection("Discord & Author")
+    local DiscordWikiSection = Tabs.Settings:AddSection("Discord & Wiki")
 
     if getfenv().setclipboard then
         DiscordWikiSection:AddButton({
-            Title = "Copy Discord Link",
+            Title = "Copy Invite Link",
             Description = "Paste it into the Browser Tab",
             Callback = function()
-                getfenv().setclipboard("https://discord.gg/FvhDq8Uk")
+                getfenv().setclipboard("https://discord.gg/w3v4KeCEXZ")
                 Window:Dialog({
                     Title = string.format(MonthlyLabels[os.date("*t").month], "Aholo Am bót 👽🔥"),
-                    Content = "Discord Link has been copied to the Clipboard!",
+                    Content = "Invite Link has been copied to the Clipboard!",
                     Buttons = {
                         {
                             Title = "Confirm"
@@ -1605,13 +1610,13 @@ do
         })
 
         DiscordWikiSection:AddButton({
-            Title = "Copy Author Discord ID",
-            Description = "Copy the author's Discord ID",
+            Title = "Copy Author Id",
+            Description = "Paste it into discord add friend",
             Callback = function()
-                getfenv().setclipboard("aluline09")
+                getfenv().setclipboard("akuline09")
                 Window:Dialog({
                     Title = string.format(MonthlyLabels[os.date("*t").month], "Aholo Am bót 👽🔥"),
-                    Content = "Author Discord ID has been copied to the Clipboard!",
+                    Content = "discord id has been copied to the Clipboard!",
                     Buttons = {
                         {
                             Title = "Confirm"
@@ -1622,13 +1627,13 @@ do
         })
     else
         DiscordWikiSection:AddParagraph({
-            Title = "https://discord.gg/FvhDq8Uk",
+            Title = "https://discord.gg/w3v4KeCEXZ",
             Content = "Paste it into the Browser Tab"
         })
 
         DiscordWikiSection:AddParagraph({
-            Title = "Author Discord ID: aluline09",
-            Content = "Copy the author's Discord ID"
+            Title = "https://discord.gg/w3v4KeCEXZ"",
+            Content = "Paste it into the Browser Tab"
         })
     end
 
@@ -1646,7 +1651,7 @@ do
         elseif ShowWarning then
             Window:Dialog({
                 Title = "Warning",
-                Content = string.format("Your Software does not support all the Features of %s 🔥FREE🔥!", string.format(MonthlyLabels[os.date("*t").month], "Aholo Am bót 👽🔥")),
+                Content = string.format("Your Software does not support all the Features of %s 🔥SKIBIDI🔥!", string.format(MonthlyLabels[os.date("*t").month], "Aholo Am bót 👽🔥")),
                 Buttons = {
                     {
                         Title = "Confirm"
@@ -1656,7 +1661,7 @@ do
         else
             Window:Dialog({
                 Title = string.format("%s 💫PREMIUM💫", string.format(MonthlyLabels[os.date("*t").month], "Aholo Am bót 👽🔥")),
-                Content = "✨Upgrade to unlock all Options✨ – Contact Aholo via Discord to buy",
+                Content = "✨Am bót aholo 4 u 🔥🔥✨\nhttps://discord.gg/w3v4KeCEXZ",
                 Buttons = {
                     {
                         Title = "Confirm"
@@ -1667,11 +1672,13 @@ do
     end
 end
 
+
 --! Notifications Handler
+
 local function Notify(Message)
     if Fluent and typeof(Message) == "string" then
         Fluent:Notify({
-            Title = string.format("%s 🔥FREE🔥", string.format(MonthlyLabels[os.date("*t").month], "Aholo Am bót 👽🔥")),
+            Title = string.format("%s 🔥SIGMA🔥", string.format(MonthlyLabels[os.date("*t").month], "Aholo Am bót 👽🔥")),
             Content = Message,
             SubContent = "By Aholo",
             Duration = 1.5
@@ -1681,7 +1688,9 @@ end
 
 Notify("✨Upgrade to unlock all Options✨")
 
+
 --! Fields Handler
+
 local FieldsHandler = {}
 
 function FieldsHandler:ResetAimbotFields(SaveAiming, SaveTarget)
@@ -1701,7 +1710,9 @@ function FieldsHandler:ResetSecondaryFields()
     ShowingESP = false
 end
 
+
 --! Input Handler
+
 do
     if IsComputer then
         local InputBegan; InputBegan = UserInputService.InputBegan:Connect(function(Input)
@@ -1787,7 +1798,9 @@ do
     end
 end
 
+
 --! Math Handler
+
 local MathHandler = {}
 
 function MathHandler:CalculateDirection(Origin, Position, Magnitude)
@@ -1831,7 +1844,9 @@ function MathHandler:Abbreviate(Number)
     return Number
 end
 
+
 --! Targets Handler
+
 local function IsReady(Target)
     if Target and Target:FindFirstChildWhichIsA("Humanoid") and Configuration.AimPart and Target:FindFirstChild(Configuration.AimPart) and Target:FindFirstChild(Configuration.AimPart):IsA("BasePart") and Player.Character and Player.Character:FindFirstChildWhichIsA("Humanoid") and Player.Character:FindFirstChild(Configuration.AimPart) and Player.Character:FindFirstChild(Configuration.AimPart):IsA("BasePart") then
         local _Player = Players:GetPlayerFromCharacter(Target)
@@ -1874,7 +1889,9 @@ local function IsReady(Target)
     return false
 end
 
+
 --! Arguments Handler
+
 local ValidArguments = {
     Raycast = {
         Required = 3,
@@ -1907,7 +1924,9 @@ local function ValidateArguments(Arguments, Method)
     return Matches >= Method.Required
 end
 
+
 --! Silent Aim Handler
+
 do
     if not DEBUG and getfenv().hookmetamethod and getfenv().newcclosure and getfenv().checkcaller and getfenv().getnamecallmethod then
         local OldIndex; OldIndex = getfenv().hookmetamethod(game, "__index", getfenv().newcclosure(function(self, Index)
@@ -1953,7 +1972,9 @@ do
     end
 end
 
+
 --! Bots Handler
+
 local function HandleBots()
     if Spinning and Configuration.SpinPart and Player.Character and Player.Character:FindFirstChildWhichIsA("Humanoid") and Player.Character:FindFirstChild(Configuration.SpinPart) and Player.Character:FindFirstChild(Configuration.SpinPart):IsA("BasePart") then
         Player.Character:FindFirstChild(Configuration.SpinPart).CFrame = Player.Character:FindFirstChild(Configuration.SpinPart).CFrame * CFrame.fromEulerAnglesXYZ(0, math.rad(Configuration.SpinBotVelocity), 0)
@@ -1963,7 +1984,9 @@ local function HandleBots()
     end
 end
 
+
 --! Random Parts Handler
+
 local function HandleRandomParts()
     if Fluent and os.clock() - Clock >= 1 then
         if Configuration.RandomAimPart and #Configuration.AimPartDropdownValues > 0 then
@@ -1972,10 +1995,13 @@ local function HandleRandomParts()
         if Configuration.RandomSpinPart and #Configuration.SpinPartDropdownValues > 0 then
             Fluent.Options.SpinPart:SetValue(Configuration.SpinPartDropdownValues[Random.new():NextInteger(1, #Configuration.SpinPartDropdownValues)])
         end
+        Clock = os.clock()
     end
 end
 
+
 --! Visuals Handler
+
 local VisualsHandler = {}
 
 function VisualsHandler:Visualize(Object)
@@ -2074,7 +2100,9 @@ function VisualsHandler:RainbowVisuals()
     end
 end
 
+
 --! ESP Library
+
 local ESPLibrary = {}
 
 function ESPLibrary:Initialize(_Character)
@@ -2170,7 +2198,7 @@ function ESPLibrary:Visualize()
         local BottomPosition = workspace.CurrentCamera:WorldToViewportPoint(HumanoidRootPart.Position - Vector3.new(0, 3, 0))
         if IsInViewport then
             self.ESPBox.Size = Vector2.new(2350 / HumanoidRootPartPosition.Z, TopPosition.Y - BottomPosition.Y)
-            self.ESPBox.Position = Vector2.new(HumanoidRootPartPosition GarbledX - self.ESPBox.Size.X / 2, HumanoidRootPartPosition.Y - self.ESPBox.Size.Y / 2)
+            self.ESPBox.Position = Vector2.new(HumanoidRootPartPosition.X - self.ESPBox.Size.X / 2, HumanoidRootPartPosition.Y - self.ESPBox.Size.Y / 2)
             self.ESPBox.Thickness = Configuration.ESPThickness
             self.ESPBox.Transparency = Configuration.ESPOpacity
             self.ESPBox.Filled = Configuration.ESPBoxFilled
@@ -2208,7 +2236,7 @@ function ESPLibrary:Visualize()
                 self.HealthESP.Color = TeamColour
                 self.MagnitudeESP.OutlineColor = InvertedTeamColour
                 self.MagnitudeESP.Color = TeamColour
-                self.PremiumESP._outlineColor = InvertedTeamColour
+                self.PremiumESP.OutlineColor = InvertedTeamColour
                 self.PremiumESP.Color = TeamColour
                 self.TracerESP.Color = TeamColour
             else
@@ -2252,7 +2280,9 @@ function ESPLibrary:Disconnect()
     VisualsHandler:ClearVisual(self.TracerESP)
 end
 
+
 --! Tracking Handler
+
 local TrackingHandler = {}
 
 local Tracking = {}
@@ -2284,155 +2314,154 @@ function TrackingHandler:DisconnectConnections()
     for Key, _ in next, Connections do
         self:DisconnectConnection(Key)
     end
+    for Key, _ in next, Tracking do
+        self:DisconnectTracking(Key)
+    end
 end
 
-function TrackingHandler:Track()
-    if not Fluent then
-        VisualsHandler:ClearVisuals()
-        self:DisconnectConnections()
-        return
-    end
-    Connections.PlayerAdded = Connections.PlayerAdded or {}
-    Connections.PlayerRemoving = Connections.PlayerRemoving or {}
-    for _, _Player in next, Players:GetPlayers() do
-        if _Player.Character and not Tracking[_Player.Name] then
-            Tracking[_Player.Name] = ESPLibrary:Initialize(_Player.Character)
-            Connections.PlayerAdded[_Player.Name] = _Player.CharacterAdded:Connect(function(Character)
-                task.wait()
-                self:DisconnectTracking(_Player.Name)
-                Tracking[_Player.Name] = ESPLibrary:Initialize(Character)
-            end)
-        end
-    end
-    Connections.PlayerAdded.Global = Players.PlayerAdded:Connect(function(_Player)
-        Connections.PlayerAdded[_Player.Name] = _Player.CharacterAdded:Connect(function(Character)
-            task.wait()
-            self:DisconnectTracking(_Player.Name)
-            Tracking[_Player.Name] = ESPLibrary:Initialize(Character)
-        end)
-    end)
-    Connections.PlayerRemoving.Global = Players.PlayerRemoving:Connect(function(_Player)
-        self:DisconnectTracking(_Player.Name)
-        self:DisconnectConnection(_Player.Name)
-    end)
+function TrackingHandler:DisconnectAimbot()
+    FieldsHandler:ResetAimbotFields()
+    FieldsHandler:ResetSecondaryFields()
+    self:DisconnectConnections()
+    VisualsHandler:ClearVisuals()
 end
 
---! Main Handler
-local MainHandler = {}
-
-function MainHandler:GetNearestTarget()
-    if not Fluent then
-        return FieldsHandler:ResetAimbotFields()
+local function CharacterAdded(_Character)
+    if typeof(_Character) == "Instance" then
+        local _Player = Players:GetPlayerFromCharacter(_Character)
+        Tracking[_Player.UserId] = ESPLibrary:Initialize(_Character)
     end
-    local MouseLocation = UserInputService:GetMouseLocation()
-    local NearestTarget, NearestDistance = nil, Configuration.FoVCheck and Configuration.FoVRadius or math.huge
-    for _, _Player in next, Players:GetPlayers() do
-        if _Player ~= Player and _Player.Character and IsReady(_Player.Character) then
-            local TargetPartPosition = select(3, IsReady(_Player.Character))
-            if TargetPartPosition[2] then
-                local Distance = (Vector2.new(TargetPartPosition[1].X, TargetPartPosition[1].Y) - Vector2.new(MouseLocation.X, MouseLocation.Y)).Magnitude
-                if Distance < NearestDistance then
-                    NearestTarget = _Player.Character
-                    NearestDistance = Distance
-                end
+end
+
+local function CharacterRemoving(_Character)
+    if typeof(_Character) == "Instance" then
+        for Key, Tracked in next, Tracking do
+            if Tracked.Character == _Character then
+                TrackingHandler:DisconnectTracking(Key)
             end
         end
     end
-    return NearestTarget
 end
 
-function MainHandler:Aim(TargetPartPosition)
-    if not Fluent then
-        return FieldsHandler:ResetAimbotFields()
-    elseif Configuration.AimMode == "Camera" then
-        workspace.CurrentCamera.CFrame = Tween and Tween.PlaybackState ~= Enum.PlaybackState.Cancelled and Tween.PlaybackState ~= Enum.PlaybackState.Completed and CFrame.new(workspace.CurrentCamera.CFrame.Position, TargetPartPosition) or TweenService:Create(workspace.CurrentCamera, TweenInfo.new(Configuration.UseSensitivity and 1 - Configuration.Sensitivity / 100 or 0, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), { CFrame = CFrame.new(workspace.CurrentCamera.CFrame.Position, TargetPartPosition) }):Play()
-    elseif not DEBUG and getfenv().mousemoverel and Configuration.AimMode == "Mouse" then
-        local TargetScreenPosition = Vector2.new(select(3, IsReady(Target))[1].X, select(3, IsReady(Target))[1].Y)
-        local MouseLocation = UserInputService:GetMouseLocation()
-        local Delta = TargetScreenPosition - MouseLocation
-        UserInputService.MouseDeltaSensitivity = Configuration.UseSensitivity and MouseSensitivity * Configuration.Sensitivity / 100 or MouseSensitivity
-        getfenv().mousemoverel(Delta.X / 10, Delta.Y / 10)
-    end
-end
-
-function MainHandler:Run()
-    if not Fluent then
-        return FieldsHandler:ResetAimbotFields()
-    end
-    HandleRandomParts()
-    if Aiming then
-        Target = self:GetNearestTarget()
-        if Target then
-            if Configuration.OffAimbotAfterKill then
-                local Humanoid = Target:FindFirstChildWhichIsA("Humanoid")
-                if Humanoid and Humanoid.Health == 0 then
-                    FieldsHandler:ResetAimbotFields()
-                    Notify("[Aiming Mode]: OFF")
-                    return
-                end
+function TrackingHandler:InitializePlayers()
+    if not DEBUG and getfenv().Drawing and getfenv().Drawing.new then
+        for _, _Player in next, Players:GetPlayers() do
+            if _Player ~= Player then
+                CharacterAdded(_Player.Character)
+                Connections[_Player.UserId] = { _Player.CharacterAdded:Connect(CharacterAdded), _Player.CharacterRemoving:Connect(CharacterRemoving) }
             end
-            if Configuration.AimMode ~= "Silent" then
-                self:Aim(select(4, IsReady(Target)))
-            end
-        else
-            FieldsHandler:ResetAimbotFields(true, false)
         end
+    end
+end
+
+TrackingHandler:InitializePlayers()
+
+
+--! Player Events Handler
+
+local OnTeleport; OnTeleport = Player.OnTeleport:Connect(function()
+    if DEBUG or not Fluent or not getfenv().queue_on_teleport then
+        OnTeleport:Disconnect()
     else
-        FieldsHandler:ResetAimbotFields()
+        getfenv().queue_on_teleport("getfenv().loadstring(game:HttpGet(\"https://raw.githubusercontent.com/ttwizz/Open-Aimbot/master/source.lua\", true))()")
+        OnTeleport:Disconnect()
     end
-end
+end)
 
---! Connections Handler
-local ConnectionsHandler = {}
-
-function ConnectionsHandler:Connect()
-    if not Fluent then
-        VisualsHandler:ClearVisuals()
-        TrackingHandler:DisconnectConnections()
-        return
+local PlayerAdded; PlayerAdded = Players.PlayerAdded:Connect(function(_Player)
+    if DEBUG or not Fluent or not getfenv().Drawing or not getfenv().Drawing.new then
+        PlayerAdded:Disconnect()
+    else
+        Connections[_Player.UserId] = { _Player.CharacterAdded:Connect(CharacterAdded), _Player.CharacterRemoving:Connect(CharacterRemoving) }
     end
-    local Connection = RunService[UISettings.RenderingMode]:Connect(function()
-        if RobloxActive then
-            MainHandler:Run()
-            HandleBots()
-            VisualsHandler:VisualizeFoV()
-            VisualsHandler:RainbowVisuals()
-            TrackingHandler:VisualizeESP()
-        end
-    end)
-    TrackingHandler:Track()
-    return Connection
-end
-
-local Connection = ConnectionsHandler:Connect()
-
---! Player Handler
-local PlayerHandler = {}
-
-function PlayerHandler:Disconnect()
-    if Connection then
-        Connection:Disconnect()
-        FieldsHandler:ResetAimbotFields()
-        FieldsHandler:ResetSecondaryFields()
-        VisualsHandler:ClearVisuals()
-        TrackingHandler:DisconnectConnections()
-    end
-end
+end)
 
 local PlayerRemoving; PlayerRemoving = Players.PlayerRemoving:Connect(function(_Player)
     if not Fluent then
         PlayerRemoving:Disconnect()
-    elseif _Player == Player then
-        PlayerHandler:Disconnect()
+    else
+        if _Player == Player then
+            Fluent:Destroy()
+            TrackingHandler:DisconnectAimbot()
+            PlayerRemoving:Disconnect()
+        else
+            TrackingHandler:DisconnectConnection(_Player.UserId)
+            TrackingHandler:DisconnectTracking(_Player.UserId)
+        end
     end
 end)
 
-local CharacterAdded; CharacterAdded = Player.CharacterAdded:Connect(function()
-    if not Fluent then
-        CharacterAdded:Disconnect()
-    else
-        task.wait()
+
+--! Aimbot Handler
+
+local AimbotLoop; AimbotLoop = RunService[UISettings.RenderingMode]:Connect(function()
+    if Fluent.Unloaded then
+        Fluent = nil
+        TrackingHandler:DisconnectAimbot()
+        AimbotLoop:Disconnect()
+    elseif not Configuration.Aimbot and Aiming then
         FieldsHandler:ResetAimbotFields()
-        Connection = ConnectionsHandler:Connect()
+    elseif not Configuration.SpinBot and Spinning then
+        Spinning = false
+    elseif not Configuration.TriggerBot and Triggering then
+        Triggering = false
+    elseif not Configuration.FoV and ShowingFoV then
+        ShowingFoV = false
+    elseif not Configuration.ESPBox and not Configuration.NameESP and not Configuration.HealthESP and not Configuration.MagnitudeESP and not Configuration.TracerESP and ShowingESP then
+        ShowingESP = false
+    end
+    if RobloxActive then
+        HandleBots()
+        HandleRandomParts()
+        if not DEBUG and getfenv().Drawing and getfenv().Drawing.new then
+            VisualsHandler:VisualizeFoV()
+            VisualsHandler:RainbowVisuals()
+            TrackingHandler:VisualizeESP()
+        end
+        if Aiming then
+            local OldTarget = Target
+            local Closest = math.huge
+            if not IsReady(OldTarget) then
+                if OldTarget and not Configuration.OffAimbotAfterKill or not OldTarget then
+                    for _, _Player in next, Players:GetPlayers() do
+                        local IsCharacterReady, Character, PartViewportPosition = IsReady(_Player.Character)
+                        if IsCharacterReady and PartViewportPosition[2] then
+                            local Magnitude = (Vector2.new(Mouse.X, Mouse.Y) - Vector2.new(PartViewportPosition[1].X, PartViewportPosition[1].Y)).Magnitude
+                            if Magnitude <= Closest and Magnitude <= (Configuration.FoVCheck and Configuration.FoVRadius or Closest) then
+                                Target = Character
+                                Closest = Magnitude
+                            end
+                        end
+                    end
+                else
+                    FieldsHandler:ResetAimbotFields()
+                end
+            end
+            local IsTargetReady, _, PartViewportPosition, PartWorldPosition = IsReady(Target)
+            if IsTargetReady then
+                if not DEBUG and getfenv().mousemoverel and IsComputer and Configuration.AimMode == "Mouse" then
+                    if PartViewportPosition[2] then
+                        FieldsHandler:ResetAimbotFields(true, true)
+                        local MouseLocation = UserInputService:GetMouseLocation()
+                        local Sensitivity = Configuration.UseSensitivity and Configuration.Sensitivity / 5 or 10
+                        getfenv().mousemoverel((PartViewportPosition[1].X - MouseLocation.X) / Sensitivity, (PartViewportPosition[1].Y - MouseLocation.Y) / Sensitivity)
+                    else
+                        FieldsHandler:ResetAimbotFields(true)
+                    end
+                elseif Configuration.AimMode == "Camera" then
+                    UserInputService.MouseDeltaSensitivity = 0
+                    if Configuration.UseSensitivity then
+                        Tween = TweenService:Create(workspace.CurrentCamera, TweenInfo.new(math.clamp(Configuration.Sensitivity, 9, 99) / 100, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), { CFrame = CFrame.new(workspace.CurrentCamera.CFrame.Position, PartWorldPosition) })
+                        Tween:Play()
+                    else
+                        workspace.CurrentCamera.CFrame = CFrame.new(workspace.CurrentCamera.CFrame.Position, PartWorldPosition)
+                    end
+                elseif not DEBUG and getfenv().hookmetamethod and getfenv().newcclosure and getfenv().checkcaller and getfenv().getnamecallmethod and Configuration.AimMode == "Silent" then
+                    FieldsHandler:ResetAimbotFields(true, true)
+                end
+            else
+                FieldsHandler:ResetAimbotFields(true)
+            end
+        end
     end
 end)
