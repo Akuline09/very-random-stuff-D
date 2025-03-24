@@ -2,11 +2,6 @@
 
 local DEBUG = false
 
-local Whitelist = {3530296802, 1416715540}
-if not table.find(Whitelist, Players.LocalPlayer.UserId) then
-    return
-end
-
 if DEBUG then
     getfenv().getfenv = function()
         return setmetatable({}, {
@@ -285,8 +280,8 @@ end)
 
 do
     local Window = Fluent:CreateWindow({
-        Title = string.format("%s <b><i>%s</i></b>", string.format(MonthlyLabels[os.date("*t").month], "Aholo Am Bót"), #Status > 0 and Status or "🔥Sigma🔥"),
-        SubTitle = "By Aholo Xinh Gai",
+        Title = string.format("%s <b><i>%s</i></b>", string.format(MonthlyLabels[os.date("*t").month], "Aholo Am Bót 🔥👽"), #Status > 0 and Status or "🔥SKIBIDI🔥"),
+        SubTitle = "By @ttwiz_z",
         TabWidth = UISettings.TabWidth,
         Size = UDim2.fromOffset(table.unpack(UISettings.Size)),
         Theme = UISettings.Theme,
@@ -294,18 +289,18 @@ do
         MinimizeKey = UISettings.MinimizeKey
     })
 
-    local Tabs = { Aimbot = Window:AddTab({ Title = "Aholo Am bót 👽🔥", Icon = "crosshair" }) }
+    local Tabs = { Aimbot = Window:AddTab({ Title = "Aimbot", Icon = "crosshair" }) }
 
     Window:SelectTab(1)
 
     Tabs.Aimbot:AddParagraph({
-        Title = string.format("%s 🔥Sigma🔥", string.format(MonthlyLabels[os.date("*t").month], "Aholo Am bót 👽🔥")),
-        Content = "✨Am bót aholo 4 u 🔥🔥✨\nhttps://discord.gg/w3v4KeCEXZ"
+        Title = string.format("%s 🔥SKIBIDI🔥", string.format(MonthlyLabels[os.date("*t").month], "Aholo Am Bót 🔥👽")),
+        Content = "✨Aholo Am bót 👽✨\nhttps://discord.gg/w3v4KeCEXZ"
     })
 
     local AimbotSection = Tabs.Aimbot:AddSection("Aimbot")
 
-    local AimbotToggle = AimbotSection:AddToggle("Aimbot", { Title = "Aholo Am bót 👽🔥", Description = "Toggles Aholo Am Bot", Default = Configuration.Aimbot })
+    local AimbotToggle = AimbotSection:AddToggle("Aimbot", { Title = "Aimbot", Description = "Toggles the Aimbot", Default = Configuration.Aimbot })
     AimbotToggle:OnChanged(function(Value)
         Configuration.Aimbot = Value
         if not IsComputer then
@@ -438,7 +433,7 @@ do
             Configuration.AimPartDropdownValues = {}
             AimPartDropdown:SetValues(Configuration.AimPartDropdownValues)
             Window:Dialog({
-                Title = string.format(MonthlyLabels[os.date("*t").month], "Aholo Am bót 👽🔥"),
+                Title = string.format(MonthlyLabels[os.date("*t").month], "Aholo Am Bót 🔥👽"),
                 Content = Items == 0 and "Nothing has been cleared!" or Items == 1 and "1 Item has been cleared!" or string.format("%s Items have been cleared!", Items),
                 Buttons = {
                     {
@@ -546,8 +541,8 @@ do
     Tabs.Bots = Window:AddTab({ Title = "Bots", Icon = "bot" })
 
     Tabs.Bots:AddParagraph({
-        Title = string.format("%s 🔥SIGMA🔥", string.format(MonthlyLabels[os.date("*t").month], "Aholo Am bót 👽🔥")),
-        Content = "✨Am bót aholo 4 u 🔥🔥✨\nhttps://discord.gg/w3v4KeCEXZ"
+        Title = string.format("%s 🔥SKIBIDI🔥", string.format(MonthlyLabels[os.date("*t").month], "Aholo Am Bót 🔥👽")),
+        Content = "✨Aholo Am bót 👽✨\nhttps://discord.gg/w3v4KeCEXZ"
     })
 
     local SpinBotSection = Tabs.Bots:AddSection("SpinBot")
@@ -647,7 +642,7 @@ do
             Configuration.SpinPartDropdownValues = {}
             SpinPartDropdown:SetValues(Configuration.SpinPartDropdownValues)
             Window:Dialog({
-                Title = string.format(MonthlyLabels[os.date("*t").month], "Aholo Am bót 👽🔥"),
+                Title = string.format(MonthlyLabels[os.date("*t").month], "Aholo Am Bót 🔥👽"),
                 Content = Items == 0 and "Nothing has been cleared!" or Items == 1 and "1 Item has been cleared!" or string.format("%s Items have been cleared!", Items),
                 Buttons = {
                     {
@@ -704,8 +699,8 @@ do
     Tabs.Checks = Window:AddTab({ Title = "Checks", Icon = "list-checks" })
 
     Tabs.Checks:AddParagraph({
-        Title = string.format("%s 🔥SIGMA🔥", string.format(MonthlyLabels[os.date("*t").month], "Aholo Am bót 👽🔥")),
-        Content = "✨Am bót aholo 4 u 🔥🔥✨\nhttps://discord.gg/w3v4KeCEXZ"
+        Title = string.format("%s 🔥SKIBIDI🔥", string.format(MonthlyLabels[os.date("*t").month], "Aholo Am Bót 🔥👽")),
+        Content = "✨Aholo Am bót 👽✨\nhttps://discord.gg/w3v4KeCEXZ"
     })
 
     local SimpleChecksSection = Tabs.Checks:AddSection("Simple Checks")
@@ -904,7 +899,7 @@ do
             local Items = #Configuration.IgnoredPlayers
             IgnoredPlayersDropdown:SetValue({})
             Window:Dialog({
-                Title = string.format(MonthlyLabels[os.date("*t").month], "Aholo Am bót 👽🔥"),
+                Title = string.format(MonthlyLabels[os.date("*t").month], "Aholo Am Bót 🔥👽"),
                 Content = Items == 0 and "Nothing has been deselected!" or Items == 1 and "1 Item has been deselected!" or string.format("%s Items have been deselected!", Items),
                 Buttons = {
                     {
@@ -931,7 +926,7 @@ do
             Configuration.IgnoredPlayersDropdownValues = Cache
             IgnoredPlayersDropdown:SetValues(Configuration.IgnoredPlayersDropdownValues)
             Window:Dialog({
-                Title = string.format(MonthlyLabels[os.date("*t").month], "Aholo Am bót 👽🔥"),
+                Title = string.format(MonthlyLabels[os.date("*t").month], "Aholo Am Bót 🔥👽"),
                 Content = Items == 0 and "Nothing has been cleared!" or Items == 1 and "1 Item has been cleared!" or string.format("%s Items have been cleared!", Items),
                 Buttons = {
                     {
@@ -1007,7 +1002,7 @@ do
             local Items = #Configuration.TargetPlayers
             TargetPlayersDropdown:SetValue({})
             Window:Dialog({
-                Title = string.format(MonthlyLabels[os.date("*t").month], "Aholo Am bót 👽🔥"),
+                Title = string.format(MonthlyLabels[os.date("*t").month], "Aholo Am Bót 🔥👽"),
                 Content = Items == 0 and "Nothing has been deselected!" or Items == 1 and "1 Item has been deselected!" or string.format("%s Items have been deselected!", Items),
                 Buttons = {
                     {
@@ -1034,7 +1029,7 @@ do
             Configuration.TargetPlayersDropdownValues = Cache
             TargetPlayersDropdown:SetValues(Configuration.TargetPlayersDropdownValues)
             Window:Dialog({
-                Title = string.format(MonthlyLabels[os.date("*t").month], "Aholo Am bót 👽🔥"),
+                Title = string.format(MonthlyLabels[os.date("*t").month], "Aholo Am Bót 🔥👽"),
                 Content = Items == 0 and "Nothing has been cleared!" or Items == 1 and "1 Item has been cleared!" or string.format("%s Items have been cleared!", Items),
                 Buttons = {
                     {
@@ -1053,16 +1048,16 @@ do
     end)
 
     PremiumChecksSection:AddParagraph({
-        Title = string.format("%s 💫PREMIUM💫", string.format(MonthlyLabels[os.date("*t").month], "Aholo Am bót 👽🔥")),
-        Content = "✨Am bót aholo 4 u 🔥🔥✨\nhttps://discord.gg/w3v4KeCEXZ"
+        Title = string.format("%s 💫PREMIUM💫", string.format(MonthlyLabels[os.date("*t").month], "Aholo Am Bót 🔥👽")),
+        Content = "✨Aholo Am bót 👽✨\nhttps://discord.gg/w3v4KeCEXZ"
     })
 
     if DEBUG or getfenv().Drawing and getfenv().Drawing.new then
         Tabs.Visuals = Window:AddTab({ Title = "Visuals", Icon = "box" })
 
         Tabs.Visuals:AddParagraph({
-            Title = string.format("%s 🔥SIGMA🔥", string.format(MonthlyLabels[os.date("*t").month], "Aholo Am bót 👽🔥")),
-            Content = "✨Am bót aholo 4 u 🔥🔥✨\nhttps://discord.gg/w3v4KeCEXZ"
+            Title = string.format("%s 🔥SKIBIDI🔥", string.format(MonthlyLabels[os.date("*t").month], "Aholo Am Bót 🔥👽")),
+            Content = "✨Aholo Am bót 👽✨\nhttps://discord.gg/w3v4KeCEXZ"
         })
 
         local FoVSection = Tabs.Visuals:AddSection("FoV")
@@ -1303,8 +1298,8 @@ do
     Tabs.Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
 
     Tabs.Settings:AddParagraph({
-        Title = string.format("%s 🔥SKIBIDI🔥", string.format(MonthlyLabels[os.date("*t").month], "Aholo Am bót 👽🔥")),
-        Content = "✨Am bót aholo 4 u 🔥🔥✨\nhttps://discord.gg/w3v4KeCEXZ"
+        Title = string.format("%s 🔥SKIBIDI🔥", string.format(MonthlyLabels[os.date("*t").month], "Aholo Am Bót 🔥👽")),
+        Content = "✨Aholo Am bót 👽✨\nhttps://discord.gg/w3v4KeCEXZ"
     })
 
     local UISection = Tabs.Settings:AddSection("UI")
@@ -1408,7 +1403,7 @@ do
             UISettings.RenderingMode = Value
             InterfaceManager:ExportSettings()
             Window:Dialog({
-                Title = string.format(MonthlyLabels[os.date("*t").month], "Aholo Am bót 👽🔥"),
+                Title = string.format(MonthlyLabels[os.date("*t").month], "Aholo Am Bót 🔥👽"),
                 Content = "Changes will take effect after the Restart!",
                 Buttons = {
                     {
@@ -1598,7 +1593,7 @@ do
             Callback = function()
                 getfenv().setclipboard("https://discord.gg/w3v4KeCEXZ")
                 Window:Dialog({
-                    Title = string.format(MonthlyLabels[os.date("*t").month], "Aholo Am bót 👽🔥"),
+                    Title = string.format(MonthlyLabels[os.date("*t").month], "Aholo Am Bót 🔥👽"),
                     Content = "Invite Link has been copied to the Clipboard!",
                     Buttons = {
                         {
@@ -1610,13 +1605,13 @@ do
         })
 
         DiscordWikiSection:AddButton({
-            Title = "Copy Author Id",
-            Description = "Paste it into discord add friend",
+            Title = "Copy DC ID Link",
+            Description = "Paste it into the Send Friend",
             Callback = function()
                 getfenv().setclipboard("akuline09")
                 Window:Dialog({
-                    Title = string.format(MonthlyLabels[os.date("*t").month], "Aholo Am bót 👽🔥"),
-                    Content = "discord id has been copied to the Clipboard!",
+                    Title = string.format(MonthlyLabels[os.date("*t").month], "Aholo Am Bót 🔥👽"),
+                    Content = "ID has been copied to the Clipboard!",
                     Buttons = {
                         {
                             Title = "Confirm"
@@ -1632,7 +1627,7 @@ do
         })
 
         DiscordWikiSection:AddParagraph({
-            Title = "https://discord.gg/w3v4KeCEXZ"",
+            Title = "https://discord.gg/w3v4KeCEXZ",
             Content = "Paste it into the Browser Tab"
         })
     end
@@ -1651,7 +1646,7 @@ do
         elseif ShowWarning then
             Window:Dialog({
                 Title = "Warning",
-                Content = string.format("Your Software does not support all the Features of %s 🔥SKIBIDI🔥!", string.format(MonthlyLabels[os.date("*t").month], "Aholo Am bót 👽🔥")),
+                Content = string.format("Your Software does not support all the Features of %s 🔥SKIBIDI🔥!", string.format(MonthlyLabels[os.date("*t").month], "Aholo Am Bót 🔥👽")),
                 Buttons = {
                     {
                         Title = "Confirm"
@@ -1660,8 +1655,8 @@ do
             })
         else
             Window:Dialog({
-                Title = string.format("%s 💫PREMIUM💫", string.format(MonthlyLabels[os.date("*t").month], "Aholo Am bót 👽🔥")),
-                Content = "✨Am bót aholo 4 u 🔥🔥✨\nhttps://discord.gg/w3v4KeCEXZ",
+                Title = string.format("%s 💫PREMIUM💫", string.format(MonthlyLabels[os.date("*t").month], "Aholo Am Bót 🔥👽")),
+                Content = "You USING PREMIUM VERISON!",
                 Buttons = {
                     {
                         Title = "Confirm"
@@ -1678,7 +1673,7 @@ end
 local function Notify(Message)
     if Fluent and typeof(Message) == "string" then
         Fluent:Notify({
-            Title = string.format("%s 🔥SIGMA🔥", string.format(MonthlyLabels[os.date("*t").month], "Aholo Am bót 👽🔥")),
+            Title = string.format("%s 🔥SKIBIDI🔥", string.format(MonthlyLabels[os.date("*t").month], "Aholo Am Bót 🔥👽")),
             Content = Message,
             SubContent = "By Aholo",
             Duration = 1.5
@@ -1686,7 +1681,7 @@ local function Notify(Message)
     end
 end
 
-Notify("✨Upgrade to unlock all Options✨")
+Notify("Have good day bae")
 
 
 --! Fields Handler
