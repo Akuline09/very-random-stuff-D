@@ -218,7 +218,7 @@ Instance.new("UICorner", Bar)
 local BarTitle = Instance.new("TextLabel")
 BarTitle.Parent = Bar; BarTitle.Size = UDim2.new(0.78, 0, 1, 0)
 BarTitle.Position = UDim2.new(0.04, 0, 0, 0)
-BarTitle.Text = "Hitbox  Â·  Aholo"
+BarTitle.Text = "Panel  ·  Aholo"
 BarTitle.TextColor3 = Color3.fromRGB(255,255,255)
 BarTitle.BackgroundTransparency = 1
 BarTitle.Font = Enum.Font.GothamBold; BarTitle.TextSize = 12
