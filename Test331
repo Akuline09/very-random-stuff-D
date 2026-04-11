@@ -18,6 +18,7 @@ getgenv().AuraOn         = false
 getgenv().AuraRange      = 8
 getgenv().AuraTeamCheck  = false
 getgenv().AuraFriendOnly = false
+getgenv().AuraMode       = "tool"   -- "tool" | "m1"
 
 local function shouldTarget(v)
     if v == LocalPlayer then return false end
@@ -63,29 +64,40 @@ end
 
 RunService.RenderStepped:Connect(applyHeads)
 
--- Sword Aura
+-- Sword Aura logic
 RunService.RenderStepped:Connect(function()
     if not AuraOn then return end
-    local chr  = LocalPlayer.Character
-    local tool = chr and chr:FindFirstChildOfClass("Tool")
-    if not tool or not tool:FindFirstChild("Handle") then return end
 
+    local chr = LocalPlayer.Character
+    if not chr then return end
+
+    local inRange = false
     for _, v in ipairs(Players:GetPlayers()) do
         if not auraTarget(v) then continue end
-        local vc = v.Character
+        local vc  = v.Character
         if not vc then continue end
         local hum = vc:FindFirstChild("Humanoid")
         local hrp = vc:FindFirstChild("HumanoidRootPart")
         if not hum or not hrp or hum.Health <= 0 then continue end
         if LocalPlayer:DistanceFromCharacter(hrp.Position) <= AuraRange then
-            tool:Activate()
-            for _, part in next, vc:GetChildren() do
-                if part:IsA("BasePart") then
-                    firetouchinterest(tool.Handle, part, 0)
-                    firetouchinterest(tool.Handle, part, 1)
+            inRange = true
+            if AuraMode == "tool" then
+                local tool = chr:FindFirstChildOfClass("Tool")
+                if tool and tool:FindFirstChild("Handle") then
+                    tool:Activate()
+                    for _, part in next, vc:GetChildren() do
+                        if part:IsA("BasePart") then
+                            firetouchinterest(tool.Handle, part, 0)
+                            firetouchinterest(tool.Handle, part, 1)
+                        end
+                    end
                 end
             end
         end
+    end
+
+    if AuraMode == "m1" and inRange then
+        pcall(function() mouse1click() end)
     end
 end)
 
@@ -217,7 +229,7 @@ end)
 Players.PlayerRemoving:Connect(clearESP)
 
 -- GUI
-local FULL_H = 430
+local FULL_H = 468
 local MINI_H = 34
 
 local Gui = Instance.new("ScreenGui")
@@ -228,7 +240,7 @@ Gui.Parent = game.CoreGui
 local Main = Instance.new("Frame")
 Main.Parent = Gui
 Main.BackgroundColor3 = Color3.fromRGB(14, 14, 20)
-Main.Position = UDim2.new(0.06, 0, 0.18, 0)
+Main.Position = UDim2.new(0.06, 0, 0.12, 0)
 Main.Size = UDim2.new(0, 222, 0, FULL_H)
 Main.Active = true; Main.Draggable = true
 Instance.new("UICorner", Main)
@@ -243,7 +255,7 @@ Instance.new("UICorner", Bar)
 local BarTitle = Instance.new("TextLabel")
 BarTitle.Parent = Bar; BarTitle.Size = UDim2.new(0.78, 0, 1, 0)
 BarTitle.Position = UDim2.new(0.04, 0, 0, 0)
-BarTitle.Text = "Panel  Â·  Aholo"
+BarTitle.Text = " Yeu em Giang "
 BarTitle.TextColor3 = Color3.fromRGB(255,255,255)
 BarTitle.BackgroundTransparency = 1
 BarTitle.Font = Enum.Font.GothamBold; BarTitle.TextSize = 12
@@ -363,16 +375,47 @@ toggleRow(260, "Name + Dist", function(s) getgenv().ESP_Info      = s end)
 
 -- SWORD AURA
 secLabel(292, " SWORD AURA ")
-inputRow(310, "Range", AuraRange, function(n)
+
+-- Mode selector: Aura Tool | Auto M1
+local modeRow = Instance.new("Frame")
+modeRow.Parent = Body; modeRow.Size = UDim2.new(0.92, 0, 0, 26)
+modeRow.Position = UDim2.new(0.04, 0, 0, 310); modeRow.BackgroundTransparency = 1
+
+local function makeMode(text, xPos, isActive)
+    local btn = Instance.new("TextButton")
+    btn.Parent = modeRow
+    btn.Size = UDim2.new(0.48, 0, 1, 0)
+    btn.Position = UDim2.new(xPos, 0, 0, 0)
+    btn.Text = text
+    btn.Font = Enum.Font.GothamBold; btn.TextSize = 11
+    btn.TextColor3 = Color3.fromRGB(255,255,255)
+    btn.BackgroundColor3 = isActive and Color3.fromRGB(0,140,220) or Color3.fromRGB(40,40,55)
+    Instance.new("UICorner", btn)
+    return btn
+end
+
+local btnTool = makeMode("Aura Tool", 0,    true)
+local btnM1   = makeMode("Auto M1",   0.52, false)
+
+local function selectMode(mode)
+    getgenv().AuraMode = mode
+    btnTool.BackgroundColor3 = (mode == "tool") and Color3.fromRGB(0,140,220) or Color3.fromRGB(40,40,55)
+    btnM1.BackgroundColor3   = (mode == "m1")   and Color3.fromRGB(0,140,220) or Color3.fromRGB(40,40,55)
+end
+
+btnTool.MouseButton1Click:Connect(function() selectMode("tool") end)
+btnM1.MouseButton1Click:Connect(function()   selectMode("m1")   end)
+
+inputRow(342, "Range", AuraRange, function(n)
     getgenv().AuraRange = math.clamp(n, 1, 50)
 end)
-local _, setAura = toggleRow(338, "Sword Aura  [G]", function(s)
+local _, setAura = toggleRow(370, "Enable Aura  [G]", function(s)
     getgenv().AuraOn = s
     AuraLbl.Text       = s and "Aura: ON" or "Aura: OFF"
     AuraLbl.TextColor3 = s and Color3.fromRGB(255, 200, 0) or Color3.fromRGB(255, 80, 80)
 end)
-toggleRow(362, "Team Check",   function(s) getgenv().AuraTeamCheck  = s end)
-toggleRow(386, "Skip Friends", function(s) getgenv().AuraFriendOnly = s end)
+toggleRow(394, "Team Check",   function(s) getgenv().AuraTeamCheck  = s end)
+toggleRow(418, "Skip Friends", function(s) getgenv().AuraFriendOnly = s end)
 
 -- Keybinds
 UIS.InputBegan:Connect(function(inp, gpe)
@@ -417,106 +460,6 @@ task.delay(1.5, function()
         game:GetService("StarterGui"):SetCore("SendNotification", {
             Title = "operation1";
             Text  = "remake by : Aholo  |  F = hitbox  G = aura";
-            Duration = 5;
-        })
-    end)
-end) row = Instance.new("Frame")
-    row.Parent = Body; row.Size = UDim2.new(0.92, 0, 0, 24)
-    row.Position = UDim2.new(0.04, 0, 0, y)
-    row.BackgroundTransparency = 1
-
-    local lbl = Instance.new("TextLabel")
-    lbl.Parent = row; lbl.Size = UDim2.new(0.72, 0, 1, 0)
-    lbl.Text = lTxt; lbl.TextColor3 = Color3.fromRGB(200,200,200)
-    lbl.Font = Enum.Font.Gotham; lbl.TextSize = 12
-    lbl.BackgroundTransparency = 1; lbl.TextXAlignment = Enum.TextXAlignment.Left
-
-    local state = false
-    local pill = Instance.new("TextButton")
-    pill.Parent = row; pill.Size = UDim2.new(0, 38, 0, 19)
-    pill.Position = UDim2.new(1, -40, 0.5, -9)
-    pill.BackgroundColor3 = Color3.fromRGB(60, 60, 75); pill.Text = ""
-    Instance.new("UICorner", pill).CornerRadius = UDim.new(1, 0)
-
-    local knob = Instance.new("Frame")
-    knob.Parent = pill; knob.Size = UDim2.new(0, 15, 0, 15)
-    knob.Position = UDim2.new(0, 2, 0.5, -7)
-    knob.BackgroundColor3 = Color3.fromRGB(255,255,255)
-    Instance.new("UICorner", knob).CornerRadius = UDim.new(1, 0)
-
-    local function vis(on)
-        pill.BackgroundColor3 = on and Color3.fromRGB(0, 160, 255) or Color3.fromRGB(60, 60, 75)
-        knob.Position = on and UDim2.new(1,-17,0.5,-7) or UDim2.new(0,2,0.5,-7)
-    end
-
-    pill.MouseButton1Click:Connect(function()
-        state = not state; vis(state); onToggle(state)
-    end)
-
-    return pill, function(f) state = f; vis(f); onToggle(f) end
-end
-
-secLabel(26, " HITBOX ")
-inputRow(44, "Head Size", HeadSize, function(n)
-    getgenv().HeadSize = math.clamp(n, 1, 100)
-end)
-local _, setHitbox = toggleRow(72, "Head Hitbox  [F]", function(s)
-    getgenv().HeadHitboxOn = s
-    StatusLbl.Text       = s and "Hitbox: ON" or "Hitbox: OFF"
-    StatusLbl.TextColor3 = s and Color3.fromRGB(80, 255, 120) or Color3.fromRGB(255, 80, 80)
-end)
-toggleRow(98,  "Team Check",   function(s) getgenv().HeadTeamCheck  = s end)
-toggleRow(122, "Skip Friends", function(s) getgenv().HeadFriendOnly = s end)
-
-secLabel(152, " ESP ")
-toggleRow(170, "2D Box",      function(s) getgenv().ESP_Box       = s end)
-toggleRow(194, "Tracers",     function(s) getgenv().ESP_Tracer    = s end)
-toggleRow(218, "Highlight",   function(s) getgenv().ESP_Highlight = s end)
-toggleRow(242, "Name + Dist", function(s) getgenv().ESP_Info      = s end)
-
-UIS.InputBegan:Connect(function(inp, gpe)
-    if gpe then return end
-    if inp.KeyCode == Enum.KeyCode.F then setHitbox(not HeadHitboxOn) end
-end)
-
-local minimized = false
-MinBtn.MouseButton1Click:Connect(function()
-    minimized = not minimized
-    Body.Visible = not minimized
-    Main:TweenSize(
-        minimized and UDim2.new(0, 222, 0, MINI_H) or UDim2.new(0, 222, 0, FULL_H),
-        Enum.EasingDirection.Out, Enum.EasingStyle.Quart, 0.25, true
-    )
-    MinBtn.Text = minimized and "+" or "-"
-end)
-
-if isMobile then
-    local Mob = Instance.new("TextButton")
-    Mob.Parent = Gui; Mob.Size = UDim2.new(0, 68, 0, 68)
-    Mob.Position = UDim2.new(1, -78, 1, -86)
-    Mob.BackgroundColor3 = Color3.fromRGB(0, 100, 170)
-    Mob.BackgroundTransparency = 0.1
-    Mob.Text = "HEAD\nOFF"; Mob.TextColor3 = Color3.fromRGB(255,255,255)
-    Mob.Font = Enum.Font.GothamBold; Mob.TextSize = 12
-    Mob.TextWrapped = true; Mob.Active = true; Mob.Draggable = true
-    Instance.new("UICorner", Mob).CornerRadius = UDim.new(0.2, 0)
-    local ms = Instance.new("UIStroke", Mob)
-    ms.Color = Color3.fromRGB(0, 200, 255); ms.Thickness = 2
-
-    Mob.MouseButton1Click:Connect(function()
-        setHitbox(not HeadHitboxOn)
-        Mob.Text = HeadHitboxOn and "HEAD\nON" or "HEAD\nOFF"
-        Mob.BackgroundColor3 = HeadHitboxOn
-            and Color3.fromRGB(0, 185, 85)
-            or  Color3.fromRGB(0, 100, 170)
-    end)
-end
-
-task.delay(1.5, function()
-    pcall(function()
-        game:GetService("StarterGui"):SetCore("SendNotification", {
-            Title = "operation1";
-            Text  = "remake by : Aholo  |  F = toggle hitbox";
             Duration = 5;
         })
     end)
